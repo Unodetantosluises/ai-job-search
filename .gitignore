@@ -78,3 +78,6 @@ job_search.sqlite
 
 # Local structured storage
 local_storage/
+
+# API Key
+.env
