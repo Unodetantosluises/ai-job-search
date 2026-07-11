@@ -13,12 +13,12 @@
 % Force both first and last name AND section headings to render in moderncv
 % blue (color1). Default banking on lualatex+MiKTeX leaves these black, which
 % looks inconsistent with the rest of the blue accent scheme.
-\renewcommand*{\firstnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
-\renewcommand*{\lastnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
+\providecommand*{\firstnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
+\providecommand*{\lastnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
 \renewcommand*{\sectionstyle}[1]{{\sectionfont\color{color1}#1}}
 
 \usepackage[utf8]{inputenc}
-\usepackage{hyperref}
+\AtBeginDocument{
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -26,6 +26,7 @@
     urlcolor=blue,
     pdftitle={[YOUR_NAME] - CV},
     pdfpagemode=FullScreen,
+}
 }
 \usepackage[scale=0.80]{geometry}
 \usepackage{import}

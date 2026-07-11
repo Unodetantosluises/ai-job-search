@@ -72,3 +72,9 @@ upskill/*.md
 .agents/**/node_modules/
 .agents/**/*.log
 .agents/usage/
+
+# SQLite database
+job_search.sqlite
+
+# Local structured storage
+local_storage/
