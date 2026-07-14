@@ -47,11 +47,25 @@ let ScraperService = ScraperService_1 = class ScraperService {
         return '';
     }
     async extractVacancyData(url) {
+        let targetUrl = url;
         const hostname = new URL(url).hostname.toLowerCase();
+        if (hostname.includes('linkedin.com')) {
+            try {
+                const parsedUrl = new URL(url);
+                const jobId = parsedUrl.searchParams.get('currentJobId') || parsedUrl.searchParams.get('jobId');
+                if (jobId) {
+                    targetUrl = `https://www.linkedin.com/jobs/view/${jobId}/`;
+                    this.logger.log(`Detectado ID de vacante en URL de LinkedIn. Redirigiendo scraper a página de visualización directa: ${targetUrl}`);
+                }
+            }
+            catch (err) {
+                this.logger.debug(`Error al intentar normalizar la URL de LinkedIn: ${err.message}`);
+            }
+        }
         const { browser, page } = await this.launchBrowser();
         try {
-            this.logger.log(`Navegando a: ${url}`);
-            await page.goto(url, { waitUntil: 'load', timeout: 45000 });
+            this.logger.log(`Navegando a: ${targetUrl}`);
+            await page.goto(targetUrl, { waitUntil: 'load', timeout: 45000 });
             let title = '';
             let company = '';
             let description = '';
@@ -60,8 +74,8 @@ let ScraperService = ScraperService_1 = class ScraperService {
                 this.logger.log('Procesando portal LinkedIn...');
                 await page.waitForSelector('.top-card-layout__title, .job-details-jobs-unified-top-card__job-title, h1', { timeout: 15000 }).catch(() => { });
                 title = await this.getTextContent(page, '.top-card-layout__title, .job-details-jobs-unified-top-card__job-title, h1');
-                company = await this.getTextContent(page, '.topcard__org-name-link, .job-details-jobs-unified-top-card__company-name, a.topcard__org-name-link');
-                description = await this.getTextContent(page, '.show-more-less-html__markup, .jobs-description__content, .description__text');
+                company = await this.getTextContent(page, '.topcard__org-name-link, .job-details-jobs-unified-top-card__company-name, a.topcard__org-name-link, span.topcard__flavor a');
+                description = await this.getTextContent(page, '.show-more-less-html__markup, .jobs-description__content, .description__text, .description__text--rich');
             }
             else if (hostname.includes('occ.com.mx')) {
                 this.logger.log('Procesando portal OCC Mundial...');

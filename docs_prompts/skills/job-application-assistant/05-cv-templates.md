@@ -10,6 +10,8 @@ All CVs use the moderncv LaTeX package with the "banking" style and "blue" color
 **Compile with:** **lualatex** on MiKTeX/TeX Live. pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors; lualatex handles the same sources cleanly.
 **Master reference:** `cv/main_example.tex` (comprehensive CV with all competencies, experience, and achievements - use as source when building targeted CVs)
 
+**Never compile with pdflatex, even as a fallback if lualatex is unavailable — fail loudly instead.** pdflatex's failure mode with `fontawesome5` is not always a visible compile error. When it *does* produce a PDF, icon glyphs can embed without a `ToUnicode` CMap. This does not show up as `(cid:NNN)` or `�` — it silently remaps to an unrelated, perfectly normal-looking Unicode letter (e.g. an icon renders correctly on screen as a phone or bullet glyph, but its text layer extracts as `Ą`, `å`, or `Ĉ`). This passes a visual read of the PDF and passes a naive `(cid:NNN)`/`�` grep, and still corrupts every line that carries an icon. See the expanded check in "ATS Parseability" below.
+
 ### Compile command
 
 ```bash
@@ -35,7 +37,7 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \hypersetup{
-    % 
+    %...
     colorlinks=true,
     linkcolor=blue,
     filecolor=magenta,
@@ -51,7 +53,11 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
 \address{[YOUR_ADDRESS]}{}{}
 \phone[mobile]{[YOUR_PHONE]}
 \email{[YOUR_EMAIL]}
-\extrainfo{\href{[YOUR_LINKEDIN_URL]}{LinkedIn}, \href{[YOUR_GITHUB_URL]}{GitHub}}
+\extrainfo{\href{[YOUR_LINKEDIN_URL]}{linkedin.com/in/[handle]}, \href{[YOUR_PORTFOLIO_URL]}{[portfolio-domain].com}}
+% The link LABEL must be the literal, human-readable URL text (domain + path),
+% never a bare word like "LinkedIn" or "Portafolio" — hyperlink targets are not
+% part of the PDF text layer, only the visible label is. A bare-word label
+% means that contact channel is completely invisible to an ATS.
 
 \begin{document}
 \makecvtitle
@@ -104,6 +110,8 @@ This is the most important section to customize. It appears right after `\makecv
 
 Write 5-7 lines that function as an "elevator pitch": a concise, compelling introduction explaining why you're qualified for *this specific role*. Focus on what the employer gains from hiring you.
 
+**Write it consistently in third person** (e.g. "[Name] es Ingeniero de Software con..."), never first person ("Soy...") and never a mix of both within the same paragraph. Third person reads as a professional summary a recruiter would write about the candidate, which is the ATS/recruiter convention this template follows throughout — check the drafted paragraph for stray first-person verbs ("tengo", "soy", "cuento con" used as self-reference) before finalizing.
+
 **Create 2-3 profile statement templates for your main role types:**
 
 <!-- SETUP: These are populated based on your background -->
@@ -117,6 +125,22 @@ Write 5-7 lines that function as an "elevator pitch": a concise, compelling intr
 Reorder and emphasize based on the role. Use bold category labels.
 
 List **5-7 key competencies** in bullet format, tailored to the specific job. For each competency, briefly explain how it adds value to the position.
+
+**Markup: use a plain `itemize` list only.** Do not use `\faIcon{...}` or any fontawesome/icon command as the bullet marker for this section — icons are reserved exclusively for the built-in moderncv contact commands (`\phone`, `\email`, `\mobile`, `\social`), which moderncv already maps correctly. A custom icon-as-bullet is the single most common source of the silent glyph-corruption failure described above, because it is exactly the kind of ad hoc icon usage moderncv's built-in commands are designed to avoid.
+
+```latex
+% RIGHT
+\section{Core Competencies}
+\begin{itemize}
+\item \textbf{Frontend Development:} Angular, TypeScript, Angular Material — delivers modular, maintainable UI aligned with the role's stack.
+\item \textbf{DevOps \& CI/CD:} Docker, Azure DevOps — reduces deployment time and manual release risk.
+\end{itemize}
+
+% WRONG - icon used as a generic bullet, not a moderncv contact command
+\begin{itemize}
+\item[\faIcon{check}] \textbf{Frontend Development:} ...
+\end{itemize}
+```
 
 ### Education
 - Always include your highest degrees
@@ -188,7 +212,7 @@ cd cv && pdftotext -layout main_<company>.pdf main_<company>.txt
 What to check in the extraction:
 
 - **Contact details as literal text.** The stock template's fontawesome contact icons extract as glyph names (`MOBILE-ALT`, `Envelope`) - harmless noise, because the actual address and number are printed beside them. The failure mode is a contact detail carried *only* by an icon or a hyperlink (like the `LinkedIn` link text, whose URL is not in the text layer): invisible to an ATS. The email address must always appear as printed text.
-- **No garbled output.** `(cid:NNN)` markers or `�` characters mean a font is embedded without a Unicode mapping - an ATS sees the same garbage. This shows up with unusual fonts in custom templates, not with the stock moderncv setup under lualatex.
+- **No garbled output — including the silent kind.** `(cid:NNN)` markers or `�` characters mean a font is embedded without a Unicode mapping - an ATS sees the same garbage. This shows up with unusual fonts in custom templates, not with the stock moderncv setup under lualatex. **This grep alone is not sufficient**: an icon glyph with a missing/wrong `ToUnicode` map can extract as an ordinary-looking letter instead of `(cid:NNN)`/`�`, so it passes this check silently. After running `pdftotext -layout`, additionally inspect the first 1-2 lines (contact header) and the start of every bullet: flag any isolated, out-of-place accented or non-Spanish/English letter (e.g. a lone `Ą`, `Ĉ`, `å`, `ď` sitting where a bullet, phone icon, or email icon should be) as a probable icon-mapping failure, not a typo. If found, remove the offending icon command and fall back to the plain-text `itemize`/`\extrainfo` patterns above rather than trying to re-encode the icon.
 - **Reading order.** The stock banking style is single-column, so extraction order matches visual order. Custom templates (via `/add-template`) with sidebars or multi-column layouts can interleave unrelated lines; if extraction order is scrambled, the user is trading ATS compatibility for looks and should be told.
 - **Keyword coverage.** Match the posting's required/preferred terms against the extracted text, in the posting's language. Prefer the posting's exact term over a synonym when it is truthfully applicable - ATS matching is often literal. Never add a keyword the profile does not support.
 
@@ -221,6 +245,8 @@ For every candidate line, score three things:
 3. **Narrative load** — does the cover letter depend on it? If cutting the line would force you to rewrite a cover-letter paragraph, it is load-bearing.
 
 Cut the lowest-total-score line first, regardless of which section it sits in.
+
+**Never drop an entire employer/role entry silently.** Cut bullets within a role before ever removing the role itself. If page budget genuinely forces dropping a whole entry (steps 1-5 exhausted and still overflowing), it must be one of the two oldest entries in Professional Experience, never a middle entry, and it must be reported to the user in the summary of changes ("Cut [Company, dates] — lowest relevance to this posting, page budget required it") so the omission is a visible decision, not a silent loss of real experience.
 
 ### Practical order of cuts (easiest → last resort)
 

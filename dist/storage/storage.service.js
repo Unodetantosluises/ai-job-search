@@ -34,7 +34,7 @@ let StorageService = StorageService_1 = class StorageService {
         await fs.mkdir(destinationDir, { recursive: true });
         const cvDestName = `CV_${sanitizedCompany}_${sanitizedRole}.pdf`;
         const cvDestPath = path.join(destinationDir, cvDestName);
-        const coverDestName = `CoverLetter_${sanitizedCompany}_${sanitizedRole}.pdf`;
+        const coverDestName = `CartaPresentacion_${sanitizedCompany}_${sanitizedRole}.pdf`;
         const coverLetterDestPath = path.join(destinationDir, coverDestName);
         if (cvPath) {
             const resolvedCvPath = path.resolve(cvPath);
