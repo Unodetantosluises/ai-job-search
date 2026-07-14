@@ -40,7 +40,7 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
     filecolor=magenta,
     urlcolor=blue,
     pdftitle={[YOUR_NAME] - CV},
-    pdfpagemode=FullScreen,
+    pdfpagemode=FullScreen %
 }
 \usepackage[scale=0.77]{geometry}
 \usepackage{import}

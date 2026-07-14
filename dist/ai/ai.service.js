@@ -60,6 +60,15 @@ let AiService = AiService_1 = class AiService {
         }
         try {
             const systemContext = await this.loadSystemPrompt('rank.md');
+            const profilePath = path.join(process.cwd(), 'docs_prompts', 'skills', 'job-application-assistant', '01-candidate-profile.md');
+            let finalProfile = '';
+            try {
+                finalProfile = await fs.readFile(profilePath, 'utf-8');
+            }
+            catch (err) {
+                this.logger.warn(`No se pudo leer el perfil unificado de 01-candidate-profile.md: ${err.message}. Se usará el parámetro provisto.`);
+                finalProfile = candidateProfile || '';
+            }
             const model = this.genAI.getGenerativeModel({
                 model: 'gemini-3.1-flash-lite',
                 systemInstruction: systemContext || undefined,
@@ -75,7 +84,7 @@ DESCRIPCIÓN DE LA VACANTE:
 ${vacancyDescription}
 
 PERFIL DEL CANDIDATO:
-${candidateProfile}
+${finalProfile}
 
 Escribe tu respuesta estrictamente en el formato JSON requerido.
 `;
@@ -112,6 +121,15 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
         try {
             const systemContext = await this.loadSystemPrompt('apply.md');
             const baseTemplate = await this.loadTemplate(templateType);
+            const profilePath = path.join(process.cwd(), 'docs_prompts', 'skills', 'job-application-assistant', '01-candidate-profile.md');
+            let finalProfile = '';
+            try {
+                finalProfile = await fs.readFile(profilePath, 'utf-8');
+            }
+            catch (err) {
+                this.logger.warn(`No se pudo leer el perfil unificado de 01-candidate-profile.md: ${err.message}. Se usará el parámetro provisto.`);
+                finalProfile = candidateProfile || '';
+            }
             const model = this.genAI.getGenerativeModel({
                 model: 'gemini-3.1-flash-lite',
                 systemInstruction: systemContext || undefined,
@@ -124,7 +142,7 @@ DESCRIPCIÓN DE LA VACANTE:
 ${vacancyDescription}
 
 PERFIL DEL CANDIDATO:
-${candidateProfile}
+${finalProfile}
 
 PLANTILLA LATEX BASE DE REFERENCIA:
 ${baseTemplate}
@@ -158,6 +176,38 @@ CRITICAL RULES:
         }
         catch (error) {
             this.logger.error(`Error en draftLatex: ${error.message}`);
+            throw error;
+        }
+    }
+    async buildCandidateProfile(rawText) {
+        if (!this.genAI) {
+            throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
+        }
+        try {
+            const systemInstruction = `Eres un analizador de perfiles profesionales. Tu tarea es leer el texto extraído de los documentos del candidato y generar un perfil estructurado y detallado en formato Markdown. Organiza la información en secciones claras: Resumen, Experiencia Laboral, Proyectos, Educación, Habilidades Duras y Blandas. NO inventes información. Si no hay datos sobre algo, omítelo.`;
+            const model = this.genAI.getGenerativeModel({
+                model: 'gemini-3.1-flash-lite',
+                systemInstruction,
+            });
+            const userPrompt = `
+A continuación se presenta el texto consolidado extraído de los documentos del candidato. Por favor, analízalo y genera el perfil estructurado en formato Markdown.
+
+DOCUMENTOS DEL CANDIDATO (TEXTO EXTRAÍDO):
+${rawText}
+`;
+            this.logger.log('Generando perfil unificado del candidato con Gemini...');
+            const result = await model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            });
+            const response = await result.response;
+            let text = response.text();
+            if (text.includes('```')) {
+                text = text.replace(/```markdown/g, '').replace(/```/g, '').trim();
+            }
+            return text;
+        }
+        catch (error) {
+            this.logger.error(`Error en buildCandidateProfile: ${error.message}`);
             throw error;
         }
     }

@@ -8,9 +8,10 @@ export declare class AiService implements OnModuleInit {
     onModuleInit(): void;
     private loadSystemPrompt;
     private loadTemplate;
-    evaluateFit(vacancyDescription: string, candidateProfile: string, language?: string): Promise<{
+    evaluateFit(vacancyDescription: string, candidateProfile?: string, language?: string): Promise<{
         score: number;
         analysis: string;
     }>;
-    draftLatex(vacancyDescription: string, candidateProfile: string, templateType: 'cv' | 'cover_letter', language?: string): Promise<string>;
+    draftLatex(vacancyDescription: string, candidateProfile: string | undefined, templateType: 'cv' | 'cover_letter', language?: string): Promise<string>;
+    buildCandidateProfile(rawText: string): Promise<string>;
 }

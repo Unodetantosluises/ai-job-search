@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplyCommand, ApplyQuestions, ConfirmQuestions } from './apply.command';
+import { SetupCommand } from './setup.command';
 import { AiModule } from '../ai/ai.module';
 import { LatexModule } from '../latex/latex.module';
 import { StorageModule } from '../storage/storage.module';
@@ -19,6 +20,7 @@ import { Evaluation } from '../database/entities/evaluation.entity';
     ApplyCommand,
     ApplyQuestions,
     ConfirmQuestions,
+    SetupCommand,
   ],
 })
 export class CommandsModule {}

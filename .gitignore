@@ -80,4 +80,5 @@ job_search.sqlite
 local_storage/
 
 # API Key
+env
 .env
