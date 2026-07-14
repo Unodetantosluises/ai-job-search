@@ -107,7 +107,14 @@ npm run cli -- apply -c "AeroTech" -r "Senior NestJS Engineer" -d "Buscamos un d
   * `-l, --language [language]`: Idioma para los documentos (por defecto "Español").
   * `-ct, --country [country]`: Ubicación de la vacante (por defecto "No especificado").
 
-### 4. Pruebas del Entorno
+### 4. Listar Historial de Postulaciones
+Visualiza el historial completo de tus postulaciones directamente en tu terminal como una tabla organizada por fecha de postulación descendente:
+```bash
+npm run cli -- list
+```
+* Muestra información de: ID, Empresa, Puesto, Modalidad, Estado de Postulación, Puntuación de Ajuste (Score) de IA y Fecha de postulación.
+
+### 5. Pruebas del Entorno
 Ejecuta diagnósticos rápidos del estado de la API, Docker y base de datos:
 ```bash
 npm run cli -- test

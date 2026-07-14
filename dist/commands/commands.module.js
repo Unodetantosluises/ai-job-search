@@ -12,6 +12,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const apply_command_1 = require("./apply.command");
 const setup_command_1 = require("./setup.command");
 const scrape_command_1 = require("./scrape.command");
+const list_command_1 = require("./list.command");
 const ai_module_1 = require("../ai/ai.module");
 const latex_module_1 = require("../latex/latex.module");
 const storage_module_1 = require("../storage/storage.module");
@@ -38,6 +39,7 @@ exports.CommandsModule = CommandsModule = __decorate([
             setup_command_1.SetupCommand,
             scrape_command_1.ScrapeCommand,
             scrape_command_1.ScrapeConfirmQuestions,
+            list_command_1.ListCommand,
         ],
     })
 ], CommandsModule);

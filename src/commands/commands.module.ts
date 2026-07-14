@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplyCommand, ApplyQuestions, ConfirmQuestions } from './apply.command';
 import { SetupCommand } from './setup.command';
 import { ScrapeCommand, ScrapeConfirmQuestions } from './scrape.command';
+import { ListCommand } from './list.command';
 import { AiModule } from '../ai/ai.module';
 import { LatexModule } from '../latex/latex.module';
 import { StorageModule } from '../storage/storage.module';
@@ -26,6 +27,7 @@ import { Evaluation } from '../database/entities/evaluation.entity';
     SetupCommand,
     ScrapeCommand,
     ScrapeConfirmQuestions,
+    ListCommand,
   ],
 })
 export class CommandsModule {}
