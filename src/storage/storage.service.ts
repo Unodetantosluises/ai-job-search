@@ -41,7 +41,7 @@ export class StorageService {
     const cvDestName = `CV_${sanitizedCompany}_${sanitizedRole}.pdf`;
     const cvDestPath = path.join(destinationDir, cvDestName);
 
-    const coverDestName = `CoverLetter_${sanitizedCompany}_${sanitizedRole}.pdf`;
+    const coverDestName = `CartaPresentacion_${sanitizedCompany}_${sanitizedRole}.pdf`;
     const coverLetterDestPath = path.join(destinationDir, coverDestName);
 
     // Copiar el CV si existe

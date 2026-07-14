@@ -35,6 +35,7 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \hypersetup{
+    % 
     colorlinks=true,
     linkcolor=blue,
     filecolor=magenta,

@@ -11,9 +11,11 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const apply_command_1 = require("./apply.command");
 const setup_command_1 = require("./setup.command");
+const scrape_command_1 = require("./scrape.command");
 const ai_module_1 = require("../ai/ai.module");
 const latex_module_1 = require("../latex/latex.module");
 const storage_module_1 = require("../storage/storage.module");
+const scraper_module_1 = require("../scraper/scraper.module");
 const vacancy_entity_1 = require("../database/entities/vacancy.entity");
 const application_entity_1 = require("../database/entities/application.entity");
 const evaluation_entity_1 = require("../database/entities/evaluation.entity");
@@ -27,12 +29,15 @@ exports.CommandsModule = CommandsModule = __decorate([
             ai_module_1.AiModule,
             latex_module_1.LatexModule,
             storage_module_1.StorageModule,
+            scraper_module_1.ScraperModule,
         ],
         providers: [
             apply_command_1.ApplyCommand,
             apply_command_1.ApplyQuestions,
             apply_command_1.ConfirmQuestions,
             setup_command_1.SetupCommand,
+            scrape_command_1.ScrapeCommand,
+            scrape_command_1.ScrapeConfirmQuestions,
         ],
     })
 ], CommandsModule);

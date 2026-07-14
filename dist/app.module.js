@@ -16,6 +16,7 @@ const database_module_1 = require("./database/database.module");
 const storage_module_1 = require("./storage/storage.module");
 const ai_module_1 = require("./ai/ai.module");
 const commands_module_1 = require("./commands/commands.module");
+const scraper_module_1 = require("./scraper/scraper.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -36,6 +37,7 @@ exports.AppModule = AppModule = __decorate([
             storage_module_1.StorageModule,
             ai_module_1.AiModule,
             commands_module_1.CommandsModule,
+            scraper_module_1.ScraperModule,
         ],
         providers: [test_command_1.TestCommand],
     })

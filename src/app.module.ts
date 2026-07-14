@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { StorageModule } from './storage/storage.module';
 import { AiModule } from './ai/ai.module';
 import { CommandsModule } from './commands/commands.module';
+import { ScraperModule } from './scraper/scraper.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CommandsModule } from './commands/commands.module';
     StorageModule,
     AiModule,
     CommandsModule,
+    ScraperModule,
   ],
   providers: [TestCommand],
 })
