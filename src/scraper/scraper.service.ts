@@ -106,6 +106,19 @@ export class ScraperService {
         company = await this.getTextContent(page, 'span[data-testid="viewJobCompanyName"], div[class*="JobInfoHeader"] span');
         description = await this.getTextContent(page, 'div[data-testid="viewJobBodyJobFullDescriptionContent"], div[class*="JobDetail-section"], .jobdescription');
         
+      } else if (hostname.includes('freehire.dev')) {
+        this.logger.log('Procesando portal freehire.dev...');
+        // Espera un máximo de 15s para que la etiqueta h1 (título) y el div contenedor de la descripción carguen
+        await page.waitForSelector('h1, .job-description', { timeout: 15000 }).catch(() => {});
+
+        // Extrae el título del puesto desde la única etiqueta H1 de la página de la vacante
+        title = await this.getTextContent(page, 'h1');
+        
+        // Extrae el nombre de la empresa buscando el enlace que apunta a su página de perfil en freehire.dev
+        company = await this.getTextContent(page, 'a[href*="/companies/"], span.truncate.font-medium');
+        
+        // Extrae la descripción completa del empleo contenida en el div con clase 'job-description'
+        description = await this.getTextContent(page, '.job-description');
       } else if (hostname.includes('computrabajo.com')) {
         this.logger.log('Procesando portal CompuTrabajo...');
         const hasHash = !!new URL(url).hash;
@@ -143,8 +156,9 @@ export class ScraperService {
         throw new Error('No se pudo extraer la información mandatoria de la vacante (Título o Descripción vacíos). Verifique la estructura de la página.');
       }
 
-      // Analizar modalidad en base a palabras clave
-      const textToAnalyze = `${title} ${description}`.toLowerCase();
+      // Analizar modalidad en base a palabras clave (incluye todo el texto del body para detectar badges o sidebars)
+      const pageBodyText = await page.evaluate(() => document.body.innerText).catch(() => '');
+      const textToAnalyze = `${title} ${description} ${pageBodyText}`.toLowerCase();
       if (
         textToAnalyze.includes('remoto') || 
         textToAnalyze.includes('remote') || 

@@ -179,6 +179,8 @@ export class ApplyCommand extends CommandRunner {
         role,
         tempCvPdf,
         tempCoverPdf,
+        tempCvPath,
+        tempCoverPath,
       );
 
       // Eliminar archivos .tex y .pdf temporales de sus respectivas carpetas

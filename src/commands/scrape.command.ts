@@ -173,6 +173,8 @@ export class ScrapeCommand extends CommandRunner {
         savedVacancy.role,
         tempCvPath.replace('.tex', '.pdf'),
         tempCoverPath.replace('.tex', '.pdf'),
+        tempCvPath,
+        tempCoverPath,
       );
 
       // Actualizar estado de postulación

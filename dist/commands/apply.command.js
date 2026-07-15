@@ -134,7 +134,7 @@ let ApplyCommand = ApplyCommand_1 = class ApplyCommand extends nest_commander_1.
             console.log('\n\x1b[33m[4/4] Moviendo PDFs al almacenamiento local y limpiando temporales...\x1b[0m');
             const tempCvPdf = path.resolve('cv', 'temp_cv.pdf');
             const tempCoverPdf = path.resolve('cover_letters', 'temp_cover.pdf');
-            const { cvDest, coverLetterDest } = await this.storageService.saveApplicationFiles(company, role, tempCvPdf, tempCoverPdf);
+            const { cvDest, coverLetterDest } = await this.storageService.saveApplicationFiles(company, role, tempCvPdf, tempCoverPdf, tempCvPath, tempCoverPath);
             await fs.unlink(tempCvPath).catch(() => { });
             await fs.unlink(tempCoverPath).catch(() => { });
             await fs.unlink(tempCvPdf).catch(() => { });

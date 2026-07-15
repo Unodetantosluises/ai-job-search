@@ -28,6 +28,8 @@ export class StorageService {
     role: string,
     cvPath: string,
     coverLetterPath: string,
+    cvTexPath?: string,
+    coverLetterTexPath?: string,
   ): Promise<{ cvDest: string; coverLetterDest: string }> {
     const sanitizedCompany = this.sanitizeName(company);
     const sanitizedRole = this.sanitizeName(role);
@@ -56,6 +58,22 @@ export class StorageService {
       const resolvedCoverPath = path.resolve(coverLetterPath);
       this.logger.log(`Copiando Carta de Presentación desde ${resolvedCoverPath} hacia ${coverLetterDestPath}`);
       await fs.copyFile(resolvedCoverPath, coverLetterDestPath);
+    }
+
+    // Copiar el código fuente LaTeX del CV (.tex) si existe
+    if (cvTexPath) {
+      const resolvedCvTexPath = path.resolve(cvTexPath);
+      const cvTexDestPath = path.join(destinationDir, 'cv_draft.tex');
+      this.logger.log(`Copiando fuente LaTeX del CV desde ${resolvedCvTexPath} hacia ${cvTexDestPath}`);
+      await fs.copyFile(resolvedCvTexPath, cvTexDestPath);
+    }
+
+    // Copiar el código fuente LaTeX de la Carta (.tex) si existe
+    if (coverLetterTexPath) {
+      const resolvedCoverTexPath = path.resolve(coverLetterTexPath);
+      const coverTexDestPath = path.join(destinationDir, 'cover_letter.tex');
+      this.logger.log(`Copiando fuente LaTeX de la Carta desde ${resolvedCoverTexPath} hacia ${coverTexDestPath}`);
+      await fs.copyFile(resolvedCoverTexPath, coverTexDestPath);
     }
 
     return {

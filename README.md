@@ -114,7 +114,29 @@ npm run cli -- list
 ```
 * Muestra información de: ID, Empresa, Puesto, Modalidad, Estado de Postulación, Puntuación de Ajuste (Score) de IA y Fecha de postulación.
 
-### 5. Pruebas del Entorno
+### 5. Actualizar Estado de Postulación
+Modifica el estado de una postulación registrada en tu base de datos SQLite por su ID:
+```bash
+npm run cli -- status -i <id_postulacion> -s <nuevo_estado>
+```
+* **Flags obligatorios**:
+  * `-i, --id <id>`: ID numérico de la postulación.
+  * `-s, --status <status>`: Nuevo estado a asignar (`EN_ESPERA`, `ENVIADO`, `ENTREVISTA`, `RECHAZADO`). El comando normaliza automáticamente a mayúsculas.
+
+### 6. Preparación y Simulacro de Entrevista
+Genera una guía de preparación estructurada ("Prep Pack") y ejecuta una simulación interactiva de entrevista técnica/comportamental en la terminal basada en la vacante y tus documentos reales:
+```bash
+npm run cli -- interview -i <id_postulacion>
+```
+* **Flags obligatorios**:
+  * `-i, --id <id>`: ID numérico de la postulación.
+* **Flujo**:
+  1. Te solicita el nombre de la etapa y el entrevistador de forma interactiva.
+  2. Lee el código fuente del CV y Carta de Presentación guardados en el almacenamiento de la vacante.
+  3. Genera y guarda una guía de estudio personalizada en Markdown (`interview_prep_{etapa}.md`).
+  4. Inicia un chat en la terminal con Gemini actuando como reclutador/entrevistador, haciendo preguntas y repreguntas técnicas y de comportamiento. Escribe `salir` para terminar la sesión.
+
+### 7. Pruebas del Entorno
 Ejecuta diagnósticos rápidos del estado de la API, Docker y base de datos:
 ```bash
 npm run cli -- test
@@ -132,6 +154,8 @@ El CLI cuenta con lógicas de evasión y selectores optimizados para los siguien
   * *Estrategia de paneles*: Soporte para URLs con Hash (`#`). Detecta si se despliega un panel lateral `.box_detail` y extrae los datos acotados a dicho panel sin interferir con la página de búsqueda general.
 * **OCC Mundial (`occ.com.mx`)**
 * **Simply Hired (`simplyhired.mx` o `.com`)**
+* **freehire.dev (`freehire.dev`)**:
+  * *Estructura limpia*: Soporta extracción rápida del título principal (`h1`), enlace al perfil de la compañía (`a[href*="/companies/"]`) y la descripción del puesto (`.job-description`).
 
 ---
 

@@ -131,7 +131,7 @@ let ScrapeCommand = ScrapeCommand_1 = class ScrapeCommand extends nest_commander
                 this.latexService.compilePdf(tempCoverPath, 'xelatex'),
             ]);
             console.log('\n\x1b[33m[4/4] Moviendo PDFs al almacenamiento local y limpiando temporales...\x1b[0m');
-            const savedPaths = await this.storageService.saveApplicationFiles(savedVacancy.company, savedVacancy.role, tempCvPath.replace('.tex', '.pdf'), tempCoverPath.replace('.tex', '.pdf'));
+            const savedPaths = await this.storageService.saveApplicationFiles(savedVacancy.company, savedVacancy.role, tempCvPath.replace('.tex', '.pdf'), tempCoverPath.replace('.tex', '.pdf'), tempCvPath, tempCoverPath);
             savedApplication.status = application_entity_1.ApplicationStatus.ENVIADO;
             await this.applicationRepository.save(savedApplication);
             console.log('\n\x1b[32m===================================================');

@@ -4,6 +4,13 @@ import { ApplyCommand, ApplyQuestions, ConfirmQuestions } from './apply.command'
 import { SetupCommand } from './setup.command';
 import { ScrapeCommand, ScrapeConfirmQuestions } from './scrape.command';
 import { ListCommand } from './list.command';
+import { StatusCommand } from './status.command';
+import {
+  InterviewCommand,
+  InterviewStageQuestions,
+  InterviewMockConfirm,
+  InterviewChatQuestion,
+} from './interview.command';
 import { AiModule } from '../ai/ai.module';
 import { LatexModule } from '../latex/latex.module';
 import { StorageModule } from '../storage/storage.module';
@@ -28,6 +35,11 @@ import { Evaluation } from '../database/entities/evaluation.entity';
     ScrapeCommand,
     ScrapeConfirmQuestions,
     ListCommand,
+    StatusCommand,
+    InterviewCommand,
+    InterviewStageQuestions,
+    InterviewMockConfirm,
+    InterviewChatQuestion,
   ],
 })
 export class CommandsModule {}

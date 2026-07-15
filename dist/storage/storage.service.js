@@ -25,7 +25,7 @@ let StorageService = StorageService_1 = class StorageService {
             .replace(/[\s\-]+/g, '_')
             .replace(/_+/g, '_');
     }
-    async saveApplicationFiles(company, role, cvPath, coverLetterPath) {
+    async saveApplicationFiles(company, role, cvPath, coverLetterPath, cvTexPath, coverLetterTexPath) {
         const sanitizedCompany = this.sanitizeName(company);
         const sanitizedRole = this.sanitizeName(role);
         const folderName = `${sanitizedCompany}_${sanitizedRole}`;
@@ -45,6 +45,18 @@ let StorageService = StorageService_1 = class StorageService {
             const resolvedCoverPath = path.resolve(coverLetterPath);
             this.logger.log(`Copiando Carta de Presentación desde ${resolvedCoverPath} hacia ${coverLetterDestPath}`);
             await fs.copyFile(resolvedCoverPath, coverLetterDestPath);
+        }
+        if (cvTexPath) {
+            const resolvedCvTexPath = path.resolve(cvTexPath);
+            const cvTexDestPath = path.join(destinationDir, 'cv_draft.tex');
+            this.logger.log(`Copiando fuente LaTeX del CV desde ${resolvedCvTexPath} hacia ${cvTexDestPath}`);
+            await fs.copyFile(resolvedCvTexPath, cvTexDestPath);
+        }
+        if (coverLetterTexPath) {
+            const resolvedCoverTexPath = path.resolve(coverLetterTexPath);
+            const coverTexDestPath = path.join(destinationDir, 'cover_letter.tex');
+            this.logger.log(`Copiando fuente LaTeX de la Carta desde ${resolvedCoverTexPath} hacia ${coverTexDestPath}`);
+            await fs.copyFile(resolvedCoverTexPath, coverTexDestPath);
         }
         return {
             cvDest: cvDestPath,

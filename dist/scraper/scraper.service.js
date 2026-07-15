@@ -91,6 +91,13 @@ let ScraperService = ScraperService_1 = class ScraperService {
                 company = await this.getTextContent(page, 'span[data-testid="viewJobCompanyName"], div[class*="JobInfoHeader"] span');
                 description = await this.getTextContent(page, 'div[data-testid="viewJobBodyJobFullDescriptionContent"], div[class*="JobDetail-section"], .jobdescription');
             }
+            else if (hostname.includes('freehire.dev')) {
+                this.logger.log('Procesando portal freehire.dev...');
+                await page.waitForSelector('h1, .job-description', { timeout: 15000 }).catch(() => { });
+                title = await this.getTextContent(page, 'h1');
+                company = await this.getTextContent(page, 'a[href*="/companies/"], span.truncate.font-medium');
+                description = await this.getTextContent(page, '.job-description');
+            }
             else if (hostname.includes('computrabajo.com')) {
                 this.logger.log('Procesando portal CompuTrabajo...');
                 const hasHash = !!new URL(url).hash;
@@ -124,7 +131,8 @@ let ScraperService = ScraperService_1 = class ScraperService {
             if (!title || !description) {
                 throw new Error('No se pudo extraer la información mandatoria de la vacante (Título o Descripción vacíos). Verifique la estructura de la página.');
             }
-            const textToAnalyze = `${title} ${description}`.toLowerCase();
+            const pageBodyText = await page.evaluate(() => document.body.innerText).catch(() => '');
+            const textToAnalyze = `${title} ${description} ${pageBodyText}`.toLowerCase();
             if (textToAnalyze.includes('remoto') ||
                 textToAnalyze.includes('remote') ||
                 textToAnalyze.includes('home office') ||

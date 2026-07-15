@@ -13,6 +13,8 @@ const apply_command_1 = require("./apply.command");
 const setup_command_1 = require("./setup.command");
 const scrape_command_1 = require("./scrape.command");
 const list_command_1 = require("./list.command");
+const status_command_1 = require("./status.command");
+const interview_command_1 = require("./interview.command");
 const ai_module_1 = require("../ai/ai.module");
 const latex_module_1 = require("../latex/latex.module");
 const storage_module_1 = require("../storage/storage.module");
@@ -40,6 +42,11 @@ exports.CommandsModule = CommandsModule = __decorate([
             scrape_command_1.ScrapeCommand,
             scrape_command_1.ScrapeConfirmQuestions,
             list_command_1.ListCommand,
+            status_command_1.StatusCommand,
+            interview_command_1.InterviewCommand,
+            interview_command_1.InterviewStageQuestions,
+            interview_command_1.InterviewMockConfirm,
+            interview_command_1.InterviewChatQuestion,
         ],
     })
 ], CommandsModule);

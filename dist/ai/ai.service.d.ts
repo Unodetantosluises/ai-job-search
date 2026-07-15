@@ -1,5 +1,6 @@
 import { OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Vacancy } from '../database/entities/vacancy.entity';
 export declare class AiService implements OnModuleInit {
     private readonly configService;
     private readonly logger;
@@ -14,4 +15,6 @@ export declare class AiService implements OnModuleInit {
     }>;
     draftLatex(vacancyDescription: string, candidateProfile: string | undefined, templateType: 'cv' | 'cover_letter', language?: string): Promise<string>;
     buildCandidateProfile(rawText: string): Promise<string>;
+    generatePrepPack(vacancy: Vacancy, cvContent: string, coverLetterContent: string, stageDetails: string): Promise<string>;
+    startMockInterviewSession(systemInstruction: string): Promise<import("@google/generative-ai").ChatSession>;
 }

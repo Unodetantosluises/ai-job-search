@@ -211,6 +211,70 @@ ${rawText}
             throw error;
         }
     }
+    async generatePrepPack(vacancy, cvContent, coverLetterContent, stageDetails) {
+        this.logger.log('Generando paquete de preparación de entrevista con Gemini...');
+        const systemInstruction = `Eres un preparador de entrevistas experto y un reclutador técnico experimentado. Tu tarea es generar un documento de preparación ("Prep Pack") detallado y altamente personalizado para el candidato.
+Deberás basarte estrictamente en la información provista en la descripción de la vacante, el CV del candidato y su carta de presentación.
+Bajo ninguna circunstancia debes inventar (alucinar) habilidades, certificaciones, puestos de trabajo, clientes, proyectos o años de experiencia que no estén detallados en el CV o la carta.
+Responde en el mismo idioma que el detalle de la etapa y los documentos (normalmente español).`;
+        const model = this.genAI.getGenerativeModel({
+            model: 'gemini-3.1-flash-lite',
+            systemInstruction,
+        });
+        const userPrompt = `
+Genera un paquete de preparación ("Prep Pack") estructurado en formato Markdown para la siguiente etapa de entrevista.
+
+DETALLES DE LA ETAPA DE ENTREVISTA:
+${stageDetails}
+
+DATOS DE LA VACANTE:
+- Empresa: ${vacancy.company}
+- Puesto: ${vacancy.role}
+- Modalidad: ${vacancy.location_type}
+- Descripción:
+${vacancy.description}
+
+CV DEL CANDIDATO (LaTeX):
+${cvContent}
+
+CARTA DE PRESENTACIÓN (LaTeX):
+${coverLetterContent}
+
+El documento Markdown que generes DEBE incluir las siguientes secciones obligatorias:
+1. **Análisis de la Vacante y Expectativas**: Qué buscarán evaluar en esta etapa específica.
+2. **Preguntas Probables y Respuestas Sugeridas**: Preguntas de comportamiento y técnicas que podrían hacerte, alineadas con tu CV.
+3. **Mapeo STAR**: Adapta la técnica STAR (Situación, Tarea, Acción, Resultado) utilizando los proyectos y experiencias reales de tu CV para responder a preguntas de comportamiento clave.
+4. **Preguntas Inteligentes para el Entrevistador**: Sugiere 3 a 5 preguntas estratégicas que el candidato puede hacer sobre el puesto, la cultura o la tecnología al final de la entrevista.
+`;
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        });
+        let text = result.response.text();
+        if (text.startsWith('```markdown')) {
+            text = text.substring(11);
+            if (text.endsWith('```')) {
+                text = text.substring(0, text.length - 3);
+            }
+        }
+        else if (text.startsWith('```')) {
+            text = text.substring(3);
+            if (text.endsWith('```')) {
+                text = text.substring(0, text.length - 3);
+            }
+        }
+        return text.trim();
+    }
+    async startMockInterviewSession(systemInstruction) {
+        this.logger.log('Iniciando sesión de chat interactiva para simulacro de entrevista...');
+        const model = this.genAI.getGenerativeModel({
+            model: 'gemini-3.1-flash-lite',
+            systemInstruction,
+        });
+        const chat = model.startChat({
+            history: [],
+        });
+        return chat;
+    }
 };
 exports.AiService = AiService;
 exports.AiService = AiService = AiService_1 = __decorate([
