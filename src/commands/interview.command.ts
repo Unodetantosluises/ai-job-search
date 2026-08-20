@@ -151,10 +151,15 @@ INSTRUCCIONES DE COMPORTAMIENTO:
 5. Mantén tus intervenciones cortas y directas para simular un diálogo fluido en terminal.`;
 
       const chat = await this.aiService.startMockInterviewSession(systemInstruction);
+      const chatHistory: { sender: string; text: string }[] = [];
 
       // Primer mensaje inicializador para que Gemini salude y comience
       const initResult = await chat.sendMessage('Hola, estoy listo para iniciar la entrevista simulada.');
-      console.log(`\n\x1b[35m[Entrevistador]:\x1b[0m ${initResult.response.text()}\n`);
+      const initialReply = initResult.response.text();
+      console.log(`\n\x1b[35m[Entrevistador]:\x1b[0m ${initialReply}\n`);
+      chatHistory.push({ sender: 'Entrevistador', text: initialReply });
+
+      const exitKeywords = ['salir', 'exit', 'quit', 'adios', 'adiós', 'chao', 'hasta luego', 'terminar', 'fin'];
 
       while (true) {
         const chatAnswer = await this.inquirerService.ask<{ userResponse: string }>(
@@ -163,15 +168,53 @@ INSTRUCCIONES DE COMPORTAMIENTO:
         );
 
         const responseText = chatAnswer.userResponse.trim();
+        const lowerText = responseText.toLowerCase();
 
-        if (responseText.toLowerCase() === 'salir') {
+        // Verificar si el usuario desea salir usando palabras clave naturales
+        const isExit = exitKeywords.some(
+          (kw) => lowerText === kw || lowerText.startsWith(kw + ' ') || lowerText.endsWith(' ' + kw),
+        );
+
+        if (isExit) {
+          chatHistory.push({ sender: 'Candidato', text: responseText });
           console.log('\n\x1b[33mSimulacro de entrevista finalizado por el usuario.\x1b[0m');
           break;
         }
 
+        chatHistory.push({ sender: 'Candidato', text: responseText });
+
         console.log('\n\x1b[33mEnviando respuesta a Gemini...\x1b[0m');
         const chatResult = await chat.sendMessage(responseText);
-        console.log(`\n\x1b[35m[Entrevistador]:\x1b[0m ${chatResult.response.text()}\n`);
+        const replyText = chatResult.response.text();
+        console.log(`\n\x1b[35m[Entrevistador]:\x1b[0m ${replyText}\n`);
+        chatHistory.push({ sender: 'Entrevistador', text: replyText });
+      }
+
+      // 6. GUARDAR ARCHIVO DE EVIDENCIA DE LA ENTREVISTA (TRANSCRIPCIÓN)
+      if (chatHistory.length > 1) {
+        console.log('\n\x1b[33mGenerando y guardando archivo de evidencia de la entrevista...\x1b[0m');
+        
+        let transcriptMd = `# Evidencia de Simulacro de Entrevista\n\n`;
+        transcriptMd += `**Empresa:** ${app.vacancy.company}  \n`;
+        transcriptMd += `**Puesto:** ${app.vacancy.role}  \n`;
+        transcriptMd += `**Etapa:** ${stageAnswers.stage}  \n`;
+        if (stageAnswers.interviewer) {
+          transcriptMd += `**Entrevistador:** ${stageAnswers.interviewer}  \n`;
+        }
+        transcriptMd += `**Fecha:** ${new Date().toLocaleString('es-MX')}  \n\n`;
+        transcriptMd += `---\n\n## Registro del Diálogo\n\n`;
+
+        for (const msg of chatHistory) {
+          transcriptMd += `### **${msg.sender}**:\n${msg.text}\n\n`;
+        }
+
+        const transcriptPath = path.join(destinationDir, `interview_transcript_${sanitizedStage}.md`);
+        await fs.writeFile(transcriptPath, transcriptMd, 'utf-8');
+
+        console.log('\x1b[32m===================================================');
+        console.log('¡EVIDENCIA GUARDADA CON ÉXITO!');
+        console.log(`Transcripción guardada en: ${transcriptPath}`);
+        console.log('===================================================\x1b[0m');
       }
 
       console.log('\n\x1b[36m===================================================');
