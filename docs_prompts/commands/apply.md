@@ -46,7 +46,19 @@ Present the evaluation to the user with:
 After presenting the evaluation, ask the user:
 > "Should I proceed with drafting the CV and cover letter for this role?"
 
-**If the user says no, stop here.** If yes, continue to Step 2.
+**If the user says no, stop here.** If yes, continue to Step 1b.
+
+---
+
+## Step 1b: Resolve the Skill Gap Classification (MANDATORY GATE)
+
+Before any drafting happens, walk the Skill Gap Classification table produced in Step 1:
+
+- **Direct Match / Logical Implication** skills: no action needed, already usable in Step 2.
+- **Unconfirmed Possible Match** skills: ask the user about each one now, per the gate defined in `04-job-evaluation.md`. Batch these into a single set of questions rather than one-by-one back-and-forth where possible. On "yes," add the skill to `01-candidate-profile.md` immediately (with the level the user states) before continuing. On "no," reclassify as Confirmed Gap.
+- **Confirmed Gap** skills: no action needed, these are excluded from the CV and handled honestly in the cover letter.
+
+Do not proceed to Step 2 with any skill still in "Unconfirmed" status. If the user doesn't respond to a specific skill question, treat it as unresolved and exclude the skill from the draft rather than guessing.
 
 ---
 
@@ -59,9 +71,9 @@ Read only the reference files you do not yet have:
 - `.claude/skills/job-application-assistant/05-cv-templates.md`
 - `.claude/skills/job-application-assistant/06-cover-letter-templates.md`
 
-Also read the most recent existing CV and cover letter files for concrete structural reference (one of each is enough):
-- Read any existing `cv/main_*.tex` file as a LaTeX template reference
-- Read any existing `cover_letters/cover_*.tex` or `cover_letters/Cover_*.tex` file as a template reference
+Also read for reference:
+- The canonical CV structure: the active custom template's `template.tex` (if `05-cv-templates.md` has an `ACTIVE-TEMPLATE` block) or `cv/main_example.tex` otherwise. **This — not a previously generated company CV — is always the source of LaTeX structure and markup** (itemize patterns, bullet style, contact-line markup, section commands).
+- One existing `cv/main_*.tex` and one existing `cover_letters/cover_*.tex`, **for wording/tone reference only** — how a profile statement or bullet was phrased, not how it was marked up. Do not copy markup, bullet syntax, or contact-line formatting from these files: a previously generated CV may itself contain an undetected defect (e.g. an icon glyph used as a bullet marker), and treating it as a structural template silently propagates that defect into every subsequent CV. If anything in the existing file's markup conflicts with `05-cv-templates.md` or the canonical template, the canonical template wins.
 
 ### CV (`cv/main_<company>.tex`)
 - Always in **English**
@@ -234,7 +246,7 @@ Read the `.txt` file.
 
 **2. Parseability checks** on the extracted text:
 
-- [ ] **Text extracted at all**, with no garbage runs: no `(cid:NNN)` markers, no `�` replacement characters, no stretches of missing text that are visible in the PDF
+- [ ] **Text extracted at all, with no garbage — including the silent kind.** No `(cid:NNN)` markers, no `�` replacement characters, no stretches of missing text that are visible in the PDF. **This is not sufficient on its own**: an icon glyph with a missing/wrong `ToUnicode` map can extract as an ordinary-looking letter instead of `(cid:NNN)`/`�`, passing this check silently while still corrupting the line. Additionally inspect the contact header and the leading character of every bullet: flag any isolated, out-of-place accented or otherwise unexpected letter (e.g. a lone `Ą`, `Ĉ`, `å`, `ď` sitting where a bullet, phone icon, or email icon should be) as a probable icon-mapping failure, not a typo.
 - [ ] **Email and phone survive as literal text.** Icon fonts extract as glyph names (the stock template's contact line extracts as `MOBILE-ALT [+XX ...] • Envelope [your.email@...]`) — that noise is harmless, but the actual address and digits must be present. A contact detail carried only by an icon or a hyperlink target (like the `LinkedIn` link text) is invisible to an ATS; the email must be printed as text.
 - [ ] **Reading order matches the visual order** — section headings appear in the same sequence as on the page, and lines from different sections are not interleaved. The stock banking template is single-column and safe; custom templates registered via `/add-template` with sidebars or multi-column layouts are where this breaks.
 - [ ] **Dates recognizable** — each role and degree has its years present in the extraction.

@@ -20,6 +20,21 @@ How well do the required/preferred skills align with the candidate's capabilitie
 **Moderate match areas:** [YOUR_SECONDARY_SKILLS]
 **Weak match areas:** [SKILLS_YOU_LACK]
 
+### Skill Gap Classification (MANDATORY before drafting)
+
+For every required/preferred skill in the posting, classify it into exactly one bucket. This table is not optional commentary — `/apply` Step 2 (drafting) may not write a technology term into the CV unless it resolves to **Direct Match** or **Logical Implication** below. Everything else must be resolved with the user before drafting starts.
+
+| Bucket | Definition | What the drafter may do |
+|---|---|---|
+| **Direct Match** | The skill appears in `01-candidate-profile.md`, verbatim or as a trivial synonym. | Use it, at the proficiency level the profile states — never upgrade "familiar" to "avanzado" to match the posting's wording. |
+| **Logical Implication** | Not named in the profile, but strictly and technically implied by something that is (e.g. Node.js is implied by Express.js/NestJS experience, since both run on the Node.js runtime; SQL is implied by PostgreSQL/SQL Server experience). This is not a stretch — it is already true. | Use it. Note in the CV generation log which documented skill implies it, so the reasoning is auditable later. |
+| **Unconfirmed Possible Match** | Not in the profile and not a strict logical implication, but plausible the candidate has real undocumented experience with it (e.g. a common tool like Postman, a testing framework, a minor library). | **May not be used without asking.** See the gate below. |
+| **Confirmed Gap** | Not in the profile, no logical implication, and the user has confirmed (this session or a prior one) they do not have real experience with it. | Never use it in the CV. Acknowledge honestly in the cover letter per `03-writing-style.md`'s reframing rules if it's a significant posting requirement. |
+
+**Gate for Unconfirmed Possible Match:** before proceeding to drafting, ask the user directly, one question per skill: *"La vacante pide [skill] y no está en tu perfil — ¿tienes experiencia real con esto? Si sí, ¿qué nivel?"* Do not infer an answer, do not default to including it, and do not default to omitting it either — both are guessing. On a "yes," add the skill to `01-candidate-profile.md` before drafting (so it's documented once, not re-litigated on every future application) and treat it as a **Direct Match** from that point on. On a "no," reclassify as **Confirmed Gap**.
+
+Never invert this: a skill is not "probably fine to include" just because the posting needs it and the candidate seems like the type of person who might know it. Plausibility is exactly what should trigger the question, not substitute for it.
+
 ### 2. Experience Match (0-100)
 Does work history align with what they're looking for?
 
@@ -121,8 +136,13 @@ Present the evaluation as:
 ### Key Strengths for This Role
 - [bullet points]
 
+### Skill Gap Classification
+| Skill | Bucket | Resolution |
+|---|---|---|
+| [skill] | Direct Match / Logical Implication / Unconfirmed Possible Match / Confirmed Gap | [what happens with it in the CV, or "asked user - pending"] |
+
 ### Gaps to Address
-- [bullet points]
+- [bullet points - Confirmed Gaps only, framed for honest cover-letter acknowledgment]
 
 ### Recommendation
 [1-2 sentences: apply/skip/apply with caveats]

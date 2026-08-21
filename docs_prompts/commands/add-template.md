@@ -112,9 +112,18 @@ Never register a template without a successful test compile. LaTeX templates tha
    ```
 3. If the compile fails: show the user the relevant error lines, diagnose (missing font file, wrong engine, missing class), fix what you can (e.g. font `Path` values), and re-compile. If the fix needs input only the user has (a missing font file, a license-restricted class), ask for it and wait.
 4. On success, Read the PDF and confirm the layout renders sensibly (no overlapping text, fonts loaded, page count plausible for dummy content). Record any surprises in the manifest's "Known pitfalls".
-5. Delete the scratch files: `_compile_test.tex`, `_compile_test.pdf`, and all `.aux`/`.log`/`.out` artifacts.
+5. **Verify the text layer, not just the visual render (MANDATORY).** A PDF can look perfect and still extract as garbage — icon fonts in particular can embed without a correct `ToUnicode` CMap, which silently remaps an icon glyph to an ordinary-looking letter instead of failing loudly. This has already happened in this project (a phone icon extracted as `Ą`, an email icon as `å`, and custom icon bullets as `Ĉ`) and a visual PDF read did not catch it.
+   ```bash
+   pdftotext -layout _compile_test.pdf _compile_test.txt
+   ```
+   In the extracted text, check:
+   - **Every contact detail** (phone, mobile, email) appears as its literal, correct text — not `(cid:NNN)`, not `�`, and not an unrelated single letter sitting where the number/address should be.
+   - **Every bullet marker** — including any custom icon used as a list marker — extracts as a normal bullet character or is simply absent (fine), never as an isolated out-of-place letter.
+   - If the template uses `\phone`, `\email`, `\mobile`, `\fax`, `\social`, or any icon-based list marker (`\faIcon{...}` or similar) and the check fails: this is disqualifying, not a cosmetic note. Fix it before registering — the standard fix is overriding the relevant `\xxxsymbol` macro (e.g. `\renewcommand*{\phonesymbol}{Tel:\ }`) to plain text, or replacing the icon-based bullet with a plain `itemize`. Record the fix (or its absence and why) in the manifest's "Known pitfalls" so future template authors don't reintroduce it.
+   - If `pdftotext` is not installed, skip this check with an explicit warning to the user rather than silently registering an unverified template.
+6. Delete the scratch files: `_compile_test.tex`, `_compile_test.pdf`, `_compile_test.txt`, and all `.aux`/`.log`/`.out` artifacts.
 
-Do not proceed to Step 5 until the test compile passes.
+Do not proceed to Step 5 until the test compile **and** the text-layer check pass.
 
 ---
 
@@ -128,7 +137,7 @@ Insert (or replace, if one exists) this block immediately after the file's H1 ti
 <!-- BEGIN ACTIVE-TEMPLATE (managed by /add-template - do not edit by hand) -->
 > **Active template override: `<name>`**
 >
-> A custom template is active. Where this block conflicts with the stock guidance below, this block wins. Structural advice below (tailoring, page-budget, cutting rules) still applies.
+> A custom template is active. Where this block conflicts with the stock guidance below on **styling** (colors, layout, section order, fonts), this block wins. It does **not** override the stock guidance's **ATS-safety and integrity rules** — those apply to every template, custom or stock, with no exceptions: no icon glyph used as a bullet or list marker outside a verified-safe `\xxxsymbol` override, no keyword or qualification added that the candidate profile does not support, contact details always present as literal extractable text. If this template's own `TEMPLATE.md` conflicts with those specific rules, the stock rule wins and the conflict should be flagged to the user, not silently resolved in the template's favor.
 >
 > - **Template skeleton:** `templates/<type>/<name>/template.tex` — use this as the structural reference instead of the stock template
 > - **Manifest:** `templates/<type>/<name>/TEMPLATE.md` — read this for style rules and known pitfalls before drafting

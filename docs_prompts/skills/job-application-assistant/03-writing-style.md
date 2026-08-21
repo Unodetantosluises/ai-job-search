@@ -13,6 +13,8 @@
    - **Never:** Claiming experience the candidate doesn't have; implying they worked in a domain they haven't.
    When a bullet falls in the "flag it" zone, present it to the user after drafting with: "This bullet is a stretch because X. Keep, soften, or drop?" If the evaluation experience match score is below 50, warn before proceeding to drafting that extensive reframing would be needed.
 
+   **This test applies equally to the Skills section and to any technology named anywhere in the CV, not just to prose framing.** A skill listed in "Core Competencies" is a factual claim exactly like a bullet — it must pass the same test. Use `04-job-evaluation.md`'s Skill Gap Classification as the authority here: only **Direct Match** and **Logical Implication** skills may appear anywhere in the CV. An **Unconfirmed Possible Match** that hasn't been resolved with the user, or a **Confirmed Gap**, is a "Never" violation regardless of how well it would fit the posting - it is not softer than fabricating a bullet just because it's a single word in a list instead of a sentence. If drafting reaches Step 2 and a posting keyword has no resolved classification, stop and run the gate in `04-job-evaluation.md` rather than proceeding.
+
 ## Tone
 - **Warm but direct.** Friendly and approachable, but confident without arrogance.
 - **Conversational professional.** Not stiff corporate-speak, not casual chat. Think: how a confident person talks in a good job interview.
