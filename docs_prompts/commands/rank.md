@@ -1,4 +1,4 @@
-# /rank - Triage Scraped Jobs into a Ranked Shortlist
+﻿# /rank - Triage Scraped Jobs into a Ranked Shortlist
 
 You are batch-scoring the jobs that `/scrape` has collected, so the user can decide where to spend `/apply` effort. `/scrape` finds and dedupes postings; `/apply` evaluates one at a time in depth. `/rank` is the bridge: it scores every new posting against the fit framework and returns a ranked shortlist.
 
@@ -12,10 +12,10 @@ Follow these steps **in order**.
 
 `$ARGUMENTS` may contain:
 
-- Nothing → rank all jobs with status `new` in `job_scraper/seen_jobs.json`
-- A focus area (e.g. `/rank data science`) → rank only jobs whose title or stored fit-notes match the focus
-- `--all` → re-rank every job that has not been applied to, including previously ranked ones (useful after the profile changes)
-- `--top <N>` → shortlist size (default 5)
+- Nothing â†’ rank all jobs with status `new` in `job_scraper/seen_jobs.json`
+- A focus area (e.g. `/rank data science`) â†’ rank only jobs whose title or stored fit-notes match the focus
+- `--all` â†’ re-rank every job that has not been applied to, including previously ranked ones (useful after the profile changes)
+- `--top <N>` â†’ shortlist size (default 5)
 
 ---
 
@@ -26,8 +26,8 @@ Follow these steps **in order**.
 3. Select candidates: entries with status `new` (or all non-applied entries with `--all`), minus the exclusion set, filtered by the focus area if one was given.
 4. If no candidates remain, say so ("Nothing new to rank - run /scrape to find fresh postings") and stop.
 5. Read the scoring framework and profile **once**:
-   - `.claude/skills/job-application-assistant/04-job-evaluation.md`
-   - `.claude/skills/job-application-assistant/01-candidate-profile.md`
+   - `docs_prompts/skills/job-application-assistant/04-job-evaluation.md`
+   - `docs_prompts/skills/job-application-assistant/01-candidate-profile.md`
 
 State how many jobs will be ranked before proceeding.
 
@@ -35,7 +35,7 @@ State how many jobs will be ranked before proceeding.
 
 ## Step 2: Batch-Fetch and Score
 
-Dispatch parallel `general-purpose` agents via the **Agent tool**, ~5 jobs per agent (a single agent is fine for ≤5 jobs). Token-efficiency rules, consistent with `/apply`:
+Dispatch parallel `general-purpose` agents via the **Agent tool**, ~5 jobs per agent (a single agent is fine for â‰¤5 jobs). Token-efficiency rules, consistent with `/apply`:
 
 - Pass each agent everything it needs **inline in the prompt** - the job list (title, company, URL) and a compact scoring rubric extracted from the files you read in Step 1: the strong/moderate/weak skill match areas, direct/adjacent experience domains, behavioral thrive/drain factors, career goals, deal-breakers, and the location constraints. Do **not** make agents re-read the profile files.
 - Agents fetch each posting URL with WebFetch and score **only from actually fetched content**. If a URL is dead, redirects to a listing page, or the posting has expired, the agent marks that job `expired` - it never scores from the title alone and never fabricates posting content.
@@ -56,7 +56,9 @@ Each agent returns a JSON array, one object per job:
 }
 ```
 
-Scoring uses the dimension definitions from `04-job-evaluation.md` verbatim. The honesty rule applies to triage too: gaps are stated, never smoothed over, and a posting that is a poor fit gets a low score even if it looks prestigious.
+Scoring uses the **five dimension definitions** from `04-job-evaluation.md` (Technical Skills, Experience Match, Behavioral/Culture Fit, Location, Career Alignment) and their weights. The honesty rule applies to triage too: gaps are stated, never smoothed over, and a posting that is a poor fit gets a low score even if it looks prestigious.
+
+> **Scope note â€” Skill Gap Classification gate does NOT apply here.** The gate defined in `04-job-evaluation.md` (classifying each posting skill as Direct Match / Logical Implication / Unconfirmed / Confirmed Gap and asking the user about each Unconfirmed one) is a pre-drafting requirement for `/apply`. `/rank` is non-interactive batch triage â€” there is no user to ask. Instead, score each skill dimension against the candidate profile directly: skills present in the profile contribute positively to the Technical Skills score; skills absent from the profile and not logically implied count as gaps and lower the score. Record them in the `gaps` array. The classification gate runs later, when the user picks a job and `/apply` starts.
 
 ---
 
@@ -66,8 +68,8 @@ Back in the main context, for each scored job:
 
 1. Compute the overall score with the weighting from `04-job-evaluation.md` (Technical 30%, Experience 25%, Behavioral 15%, Career Alignment 30%; location is unweighted).
 2. Map to the framework's verdict bands (Strong Fit 75+, Good Fit 60-74, Moderate Fit 45-59, Weak Fit 30-44, Poor Fit <30).
-3. **Location veto:** `FAIL` (e.g. requires relocation) excludes the job from the shortlist no matter the score - list it separately with the reason. `FLAG` (e.g. heavy travel) stays in the ranking but carries a visible ⚠ marker for the user to judge.
-4. **Deadline urgency:** a deadline within 7 days gets a 🔥 marker and wins ties. A deadline that has already passed moves the job to `expired`.
+3. **Location veto:** `FAIL` (e.g. requires relocation) excludes the job from the shortlist no matter the score - list it separately with the reason. `FLAG` (e.g. heavy travel) stays in the ranking but carries a visible âš  marker for the user to judge.
+4. **Deadline urgency:** a deadline within 7 days gets a ðŸ”¥ marker and wins ties. A deadline that has already passed moves the job to `expired`.
 
 Sort by overall score (descending), urgency as tiebreaker.
 
@@ -95,7 +97,7 @@ Ranked <N> new postings (<X> shortlisted, <Y> below threshold, <Z> expired/vetoe
 
 | # | Score | Verdict | Title | Company | Location | Deadline | |
 |---|-------|---------|-------|---------|----------|----------|---|
-| 1 | 78 | Strong Fit | ... | ... | ... | ... | 🔥 |
+| 1 | 78 | Strong Fit | ... | ... | ... | ... | ðŸ”¥ |
 
 ### Why these ranked highest
 **1. <Title> at <Company> (78)** - [2-3 strength bullets and the honest gap, from the agent's findings]
@@ -125,3 +127,4 @@ Rules for the presentation:
 3. **Deal-breakers veto scores.** A 90-point job that fails a location deal-breaker is excluded, not ranked first.
 4. **Honest scoring.** Gaps are reported per job; a low-scoring posting is presented as such. The score bands and weights come from `04-job-evaluation.md` - if the user disagrees with a ranking, the fix is updating their profile or the framework, not bending scores.
 5. **State stays consistent.** `seen_jobs.json` fields are only added, never restructured, so `/scrape`'s dedup keeps working; the tracker is read-only for this command.
+

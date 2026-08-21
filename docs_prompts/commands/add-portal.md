@@ -1,8 +1,8 @@
-# /add-portal - Generate a Job-Portal Search Skill for Your Local Market
+﻿# /add-portal - Generate a Job-Portal Search Skill for Your Local Market
 
-You are helping the user build a job-portal search skill for a job board in their market. The repo ships worked examples of the pattern (four Danish portals plus the country-agnostic `linkedin-search`), and the README invites users elsewhere to build equivalents — this command turns that invitation into a guided workflow: investigate the portal, scaffold the skill from the canonical structure, and test-run a live query before registering anything.
+You are helping the user build a job-portal search skill for a job board in their market. The repo ships worked examples of the pattern (four Danish portals plus the country-agnostic `linkedin-search`), and the README invites users elsewhere to build equivalents â€” this command turns that invitation into a guided workflow: investigate the portal, scaffold the skill from the canonical structure, and test-run a live query before registering anything.
 
-The generator is **country-agnostic**: it works for any portal in any market and language. The skills it produces are typically market-specific and live in the user's fork (per repo policy, country-specific portal skills are not merged upstream — the generator is the upstream feature, its output is yours).
+The generator is **country-agnostic**: it works for any portal in any market and language. The skills it produces are typically market-specific and live in the user's fork (per repo policy, country-specific portal skills are not merged upstream â€” the generator is the upstream feature, its output is yours).
 
 `$ARGUMENTS` may contain a subcommand, a portal URL, or nothing.
 
@@ -24,7 +24,7 @@ Ask the user (skip anything already answered by `$ARGUMENTS`):
 
 1. **Portal URL** - the job board's public site (e.g. `https://www.seek.com.au`, `https://www.stepstone.de`).
 2. **Skill name** - kebab-case, suffixed `-search` (e.g. `seek-search`, `stepstone-search`). Must not collide with an existing folder in `.agents/skills/`.
-3. **Market and language** - which country/region the portal covers and what language its postings use. This drives the trigger phrases in `SKILL.md` (include local-language terms like the Danish skills do: "ledige stillinger", "jobsøgning").
+3. **Market and language** - which country/region the portal covers and what language its postings use. This drives the trigger phrases in `SKILL.md` (include local-language terms like the Danish skills do: "ledige stillinger", "jobsÃ¸gning").
 4. **A realistic test query** - a job title or skill the user would actually search for, used for the live test in Step 4.
 
 ---
@@ -39,7 +39,7 @@ Do reconnaissance before writing any code. Use WebFetch (or `curl` via Bash) on 
 4. **Check access requirements and terms.**
    - Fetch `robots.txt` and check whether the search/detail paths are disallowed.
    - If the portal requires login/authentication to view listings, **stop**: this pattern only works on public pages. Tell the user and suggest checking whether the portal has an official API.
-   - If robots.txt disallows the paths or the portal's terms prohibit automated access, tell the user plainly and let them decide whether to proceed for personal use. If they proceed, the generated `SKILL.md` **must** carry a prominent personal-use-only warning (copy the tone of `linkedin-search`'s "⚠️ Personal use only" section: keep volume low, no commercial or bulk use, own responsibility).
+   - If robots.txt disallows the paths or the portal's terms prohibit automated access, tell the user plainly and let them decide whether to proceed for personal use. If they proceed, the generated `SKILL.md` **must** carry a prominent personal-use-only warning (copy the tone of `linkedin-search`'s "âš ï¸ Personal use only" section: keep volume low, no commercial or bulk use, own responsibility).
 
 Record everything you found - endpoints, parameters, field anchors, quirks - you will write it into `url-reference.md` in Step 3.
 
@@ -53,20 +53,20 @@ Create `.agents/skills/<name>/` with:
 
 ```
 <name>/
-├── SKILL.md              # Skill definition with trigger phrases
-├── url-reference.md      # Endpoint documentation from Step 2
-└── cli/
-    ├── package.json
-    ├── tsconfig.json
-    ├── README.md
-    ├── src/
-    │   ├── cli.ts        # Arg parsing, help text, command dispatch
-    │   ├── helpers.ts    # Fetch with backoff, parsers, error writer
-    │   └── commands/
-    │       ├── search.ts
-    │       └── detail.ts
-    └── tests/
-        └── helpers.ts    # runCLI + parseJSON test utilities (copy from jobindex-search)
+â”œâ”€â”€ SKILL.md              # Skill definition with trigger phrases
+â”œâ”€â”€ url-reference.md      # Endpoint documentation from Step 2
+â””â”€â”€ cli/
+    â”œâ”€â”€ package.json
+    â”œâ”€â”€ tsconfig.json
+    â”œâ”€â”€ README.md
+    â”œâ”€â”€ src/
+    â”‚   â”œâ”€â”€ cli.ts        # Arg parsing, help text, command dispatch
+    â”‚   â”œâ”€â”€ helpers.ts    # Fetch with backoff, parsers, error writer
+    â”‚   â””â”€â”€ commands/
+    â”‚       â”œâ”€â”€ search.ts
+    â”‚       â””â”€â”€ detail.ts
+    â””â”€â”€ tests/
+        â””â”€â”€ helpers.ts    # runCLI + parseJSON test utilities (copy from jobindex-search)
 ```
 
 ### The portal-skill contract (every generated skill MUST honor this)
@@ -87,7 +87,7 @@ These conventions are what make portal skills interchangeable for `/scrape` and 
 - **`SKILL.md` body:** what the skill searches, the personal-use warning if Step 2 found terms restrictions, command reference with flags, 4-6 usage examples using the user's market (real cities, realistic roles), output-format table, and a Notes section recording portal quirks found in Step 2.
 - **`url-reference.md`:** the endpoints, parameters table, and response-structure notes from Step 2 - this is the file a future maintainer needs when the portal changes its markup.
 - **`package.json`:** name `<portal>-cli`, `"type": "module"`, scripts `start`, `test` (`bun test --timeout 30000`), and `typecheck` (`tsc --noEmit`); dev-only dependencies in the zero-dependency default.
-- **`tests/`:** copy `runCLI`/`parseJSON` from `jobindex-search/cli/tests/helpers.ts`, then add a small live smoke-test file: `search` with the test query returns exit code 0 and ≥1 result with non-null `id`/`title`/`url`; a bogus flag or missing required arg exits 1 with a JSON error on stderr.
+- **`tests/`:** copy `runCLI`/`parseJSON` from `jobindex-search/cli/tests/helpers.ts`, then add a small live smoke-test file: `search` with the test query returns exit code 0 and â‰¥1 result with non-null `id`/`title`/`url`; a bogus flag or missing required arg exits 1 with a JSON error on stderr.
 
 ---
 
@@ -118,7 +118,7 @@ Do not proceed to Step 5 until search, detail, and tests all pass.
 
 ## Step 5: Register
 
-1. Ask whether the user wants the new portal added to their `/scrape` search strategy. If yes, add the portal's site to the relevant query categories in `.claude/skills/job-scraper/search-queries.md` (site-specific queries, like the existing `jobindex.dk` entries) so `/scrape` includes it.
+1. Ask whether the user wants the new portal added to their `/scrape` search strategy. If yes, add the portal's site to the relevant query categories in `docs_prompts/skills/job-scraper/search-queries.md` (site-specific queries, like the existing `jobindex.dk` entries) so `/scrape` includes it.
 2. Remind the user to add the install line for their own records if they maintain a fork README:
    ```bash
    cd .agents/skills/<name>/cli && bun install && cd ../../../..
@@ -151,3 +151,4 @@ Present a summary:
 - The portal-skill contract keeps every generated skill interchangeable with the shipped ones: same commands, same flags, same output shape, same error convention.
 - Zero runtime dependencies by default, matching `linkedin-search` - a portal skill should run on a fresh clone with nothing but `bun`.
 - Access rules are surfaced, not silently bypassed: auth-walled portals are declined, robots.txt/ToS restrictions are reported to the user, and restricted portals get a prominent personal-use-only warning in the generated skill.
+

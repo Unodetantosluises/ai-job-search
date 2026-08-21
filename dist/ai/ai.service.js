@@ -170,6 +170,10 @@ CRITICAL RULES:
                 if (text.includes('\\hypersetup') && !text.includes('\\AtBeginDocument')) {
                     text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
                 }
+                if (!text.includes('phonesymbol')) {
+                    const symbolOverrides = `\\renewcommand*{\\phonesymbol}{Tel:\\ }\n\\renewcommand*{\\mobilesymbol}{Cel:\\ }\n\\renewcommand*{\\emailsymbol}{Email:\\ }\n`;
+                    text = text.replace('\\begin{document}', `${symbolOverrides}\\begin{document}`);
+                }
             }
             text = text.replace(/(?<!\\)&/g, '\\&');
             return text;

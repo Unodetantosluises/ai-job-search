@@ -1,4 +1,4 @@
-# /interview - Prepare for an Interview on a Tracked Application
+﻿# /interview - Prepare for an Interview on a Tracked Application
 
 You are preparing the user for a real, scheduled interview on one of their applications. The frameworks for this already exist - `07-interview-prep.md` (STAR examples, tough questions, questions to ask, roleplay protocol) and the Company Research Checklist in `04-job-evaluation.md` - and the `/outcome` archive records which stage the user is at and what earlier stages surfaced. This command wires them together into a stage-specific prep pack and an optional mock interview.
 
@@ -12,7 +12,7 @@ Follow these steps **in order**.
 
 `$ARGUMENTS` may contain a company name (optionally with a role), e.g. `/interview acme`.
 
-- **With an argument:** match against `job_search_tracker.csv` rows (case-insensitive on company, then role). One match → proceed. Several → list and ask. None → this application isn't tracked; suggest `/outcome <company>` to register it first, or accept the posting and role details directly if the user wants to prep anyway.
+- **With an argument:** match against `job_search_tracker.csv` rows (case-insensitive on company, then role). One match â†’ proceed. Several â†’ list and ask. None â†’ this application isn't tracked; suggest `/outcome <company>` to register it first, or accept the posting and role details directly if the user wants to prep anyway.
 - **Without an argument:** list tracker rows whose status suggests a live process (`interview`, `offer`, or recently `applied`) and ask which one. If the tracker is empty, ask for the company, role, and posting.
 
 v1 preps for a **specific application**. Generic no-target practice is out of scope - if asked, prep against a real tracked application instead.
@@ -28,10 +28,10 @@ v1 preps for a **specific application**. Generic no-target practice is out of sc
 2. **Fallbacks** (the application may predate `/outcome`): posting via WebFetch on the tracker row's `source` URL, or ask the user to paste it; CV via `cv/main_<company>.tex` and cover letter via `cover_letters/cover_<company>_*.tex`. State plainly which context is missing rather than guessing - and suggest `/outcome <company>` to build the archive for next time.
 3. **Ask the user what this interview is** (skip anything `outcome.md` already records): stage (phone screen / technical / case / final round), date, format (phone, video, onsite), and who is interviewing (names and titles, if known).
 4. **Read the frameworks once** - do not re-read them in later steps:
-   - `.claude/skills/job-application-assistant/07-interview-prep.md`
-   - `.claude/skills/job-application-assistant/01-candidate-profile.md`
-   - `.claude/skills/job-application-assistant/02-behavioral-profile.md`
-   - `.claude/skills/job-application-assistant/04-job-evaluation.md`
+   - `docs_prompts/skills/job-application-assistant/07-interview-prep.md`
+   - `docs_prompts/skills/job-application-assistant/01-candidate-profile.md`
+   - `docs_prompts/skills/job-application-assistant/02-behavioral-profile.md`
+   - `docs_prompts/skills/job-application-assistant/04-job-evaluation.md`
 
 ---
 
@@ -101,7 +101,8 @@ If Step 3 drafted new STAR answers the user approved for keeps, remind them thos
 ## Important Rules
 
 1. **Consistency with the submitted documents.** The interviewer read the archived CV and cover letter; prep must never contradict them or coach claims beyond them.
-2. **Honesty on gaps.** Weak matches get bridge answers (acknowledge → adjacent experience → learning path), never invented experience. Same rule as everywhere else in this repo.
+2. **Honesty on gaps.** Weak matches get bridge answers (acknowledge â†’ adjacent experience â†’ learning path), never invented experience. Same rule as everywhere else in this repo.
 3. **Verified research only.** Company specifics go in the pack only after independent confirmation. Interviewer notes stick to public professional information.
 4. **Stage-appropriate prep.** A phone screen pack and a final-round pack are different documents; recorded feedback from earlier stages takes priority over generic question lists.
 5. **Write only to the application archive.** The prep pack lands in `documents/applications/<company>_<role>/`; framework and profile files are never edited, except appending user-approved STAR examples to `07-interview-prep.md` on explicit request.
+

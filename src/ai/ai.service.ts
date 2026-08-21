@@ -209,13 +209,19 @@ CRITICAL RULES:
         text = text.replace(/```latex/g, '').replace(/```/g, '').trim();
       }
 
-      // Evitar clashes de hyperref en moderncv (CV)
+      // Evitar clashes de hyperref y corregir glifos de iconos de contacto faltantes en moderncv (CV)
       if (templateType === 'cv') {
         text = text.replace(/\\usepackage\[?[^\]]*\]?{hyperref}/g, '% \\usepackage{hyperref} (evitado clash con la clase moderncv)');
         
         // Envolver \hypersetup en \AtBeginDocument si no lo está ya, para evitar errores en moderncv
         if (text.includes('\\hypersetup') && !text.includes('\\AtBeginDocument')) {
           text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
+        }
+
+        // Forzar redefinición de símbolos de contacto a texto plano para evitar cuadros grises de glifos faltantes (FontAwesome) y corrupción en lectura de ATS
+        if (!text.includes('phonesymbol')) {
+          const symbolOverrides = `\\renewcommand*{\\phonesymbol}{Tel:\\ }\n\\renewcommand*{\\mobilesymbol}{Cel:\\ }\n\\renewcommand*{\\emailsymbol}{Email:\\ }\n`;
+          text = text.replace('\\begin{document}', `${symbolOverrides}\\begin{document}`);
         }
       }
 

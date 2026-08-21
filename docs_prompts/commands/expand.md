@@ -11,7 +11,7 @@ Follow these steps **exactly in order**. Do not skip steps.
 Read these two files in parallel before doing anything else. You must know what is already there so you do not propose duplicates.
 
 - `docs_prompts/skills/job-application-assistant/01-candidate-profile.md`
-- `docs_prompts/skills/job-application-assistant/s02-behavioral-profile.md`
+- `docs_prompts/skills/job-application-assistant/02-behavioral-profile.md`
 
 Hold this content in context throughout the command. Do not re-read these files later.
 

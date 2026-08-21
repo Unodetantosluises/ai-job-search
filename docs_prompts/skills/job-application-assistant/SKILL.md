@@ -25,10 +25,12 @@ When the user provides a job posting (URL or text), follow this workflow:
 - Ask the user if they want to proceed with an application
 
 ### Step 2: Tailor CV
+- **Before drafting**, complete the Skill Gap Classification gate defined in `04-job-evaluation.md`: every required/preferred skill in the posting must be classified as Direct Match, Logical Implication, Unconfirmed Possible Match, or Confirmed Gap. Ask the user about each Unconfirmed skill before proceeding — do not draft until all skills are resolved. See `apply.md` Step 1b for the full gate procedure.
 - Read the most relevant existing CV variant from `cv/` as a starting point
 - Follow the guidelines in `05-cv-templates.md`
 - Create `cv/main_<company>.tex` with tailored content
 - Adjust: profile statement, skills section, experience bullet emphasis, section order
+
 
 ### Step 3: Write Cover Letter
 - Follow the writing style rules in `03-writing-style.md` (critical: no em-dashes, no cliches)
