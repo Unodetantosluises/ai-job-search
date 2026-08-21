@@ -34,9 +34,22 @@
 % personal data
 \name{[First]}{[Last]}
 \address{[Your Address, City, Country]}{}{}
+
+% Force phone/mobile/email symbols to plain text instead of moderncv's
+% built-in fontawesome5 icon glyphs. Under lualatex+MiKTeX these icon
+% glyphs are not guaranteed to carry a correct ToUnicode CMap. When the
+% mapping is missing, pdftotext silently extracts an unrelated, ordinary-
+% looking letter instead of failing loudly (e.g. the phone icon extracts
+% as "Ą", the email icon as "å") - this is invisible on a visual read of
+% the PDF AND invisible to a naive (cid:NNN)/ grep, so it must be
+% prevented at the source rather than caught after the fact.
+\renewcommand*{\phonesymbol}{Tel:\ }
+\renewcommand*{\mobilesymbol}{Cel:\ }
+\renewcommand*{\emailsymbol}{Email:\ }
+
 \phone[mobile]{[+XX XXXXXXXXXX]}
 \email{[your.email@example.com]}
-\extrainfo{\href{[https://linkedin.com/in/your-profile]}{LinkedIn}, \href{[https://github.com/your-username]}{GitHub}}
+\extrainfo{\href{[https://linkedin.com/in/your-profile]}{linkedin.com/in/your-profile}, \href{[https://github.com/your-username]}{github.com/your-username}}
 
 \begin{document}
 
