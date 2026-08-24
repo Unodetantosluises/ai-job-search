@@ -176,7 +176,7 @@ bases de datos PostgreSQL y MySQL, y tiene nociones básicas de compilación LaT
 
       console.log(`\nEjecutando compilación de LaTeX para ${targetFile}...`);
       try {
-        await this.latexService.compilePdf(targetFile, 'xelatex');
+        await this.latexService.compilePdf(targetFile, 'lualatex');
         console.log('Proceso de compilación ejecutado.');
         
         const ext = path.extname(targetFile);

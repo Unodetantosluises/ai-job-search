@@ -59,7 +59,7 @@ let LatexService = LatexService_1 = class LatexService {
             this.handleDockerError(error);
         }
     }
-    async compilePdf(filePath, engine = 'xelatex') {
+    async compilePdf(filePath, engine = 'lualatex') {
         const absolutePath = path.resolve(filePath);
         const fileDir = path.dirname(absolutePath);
         const fileName = path.basename(absolutePath);

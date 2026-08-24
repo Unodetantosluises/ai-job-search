@@ -167,13 +167,20 @@ CRITICAL RULES:
             }
             if (templateType === 'cv') {
                 text = text.replace(/\\usepackage\[?[^\]]*\]?{hyperref}/g, '% \\usepackage{hyperref} (evitado clash con la clase moderncv)');
+                text = text.replace(/\\usepackage\[?[^\]]*\]?{inputenc}/g, '% \\usepackage{inputenc} (evitado con LuaLaTeX)');
                 if (text.includes('\\hypersetup') && !text.includes('\\AtBeginDocument')) {
                     text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
                 }
-                if (!text.includes('phonesymbol')) {
-                    const symbolOverrides = `\\renewcommand*{\\phonesymbol}{Tel:\\ }\n\\renewcommand*{\\mobilesymbol}{Cel:\\ }\n\\renewcommand*{\\emailsymbol}{Email:\\ }\n`;
-                    text = text.replace('\\begin{document}', `${symbolOverrides}\\begin{document}`);
-                }
+                const atsOverrides = [
+                    '\\renewcommand*{\\phonesymbol}{Tel:~}',
+                    '\\renewcommand*{\\mobilesymbol}{Cel:~}',
+                    '\\renewcommand*{\\emailsymbol}{Email:~}',
+                    '\\renewcommand*{\\labelitemi}{\\strut\\textcolor{color1}{\\textbullet}}',
+                    '\\renewcommand*{\\labelitemii}{\\strut\\textcolor{color1}{--}}',
+                ].join('\n') + '\n';
+                text = text.replace(/\\renewcommand\*?\{\\(?:phone|mobile|email)symbol\}\{[^}]*\}/g, '');
+                text = text.replace(/\\renewcommand\*?\{\\labelitemi[i]?\}\{[^}]*\}/g, '');
+                text = text.replace('\\begin{document}', `${atsOverrides}\\begin{document}`);
             }
             text = text.replace(/(?<!\\)&/g, '\\&');
             return text;

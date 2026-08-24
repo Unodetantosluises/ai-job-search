@@ -10,7 +10,7 @@ All CVs use the moderncv LaTeX package with the "banking" style and "blue" color
 **Compile with:** **lualatex** on MiKTeX/TeX Live. pdflatex often fails on modern MiKTeX installs with `fontawesome5` font-expansion errors; lualatex handles the same sources cleanly.
 **Master reference:** `cv/main_example.tex` (comprehensive CV with all competencies, experience, and achievements - use as source when building targeted CVs)
 
-**Never compile with pdflatex, even as a fallback if lualatex is unavailable — fail loudly instead.** pdflatex's failure mode with `fontawesome5` is not always a visible compile error. When it *does* produce a PDF, icon glyphs can embed without a `ToUnicode` CMap. This does not show up as `(cid:NNN)` or `�` — it silently remaps to an unrelated, perfectly normal-looking Unicode letter (e.g. an icon renders correctly on screen as a phone or bullet glyph, but its text layer extracts as `Ą`, `å`, or `Ĉ`). This passes a visual read of the PDF and passes a naive `(cid:NNN)`/`�` grep, and still corrupts every line that carries an icon. See the expanded check in "ATS Parseability" below.
+**Never compile with pdflatex, even as a fallback if lualatex is unavailable — fail loudly instead.** pdflatex's failure mode with `fontawesome5` is not always a visible compile error. When it *does* produce a PDF, icon glyphs can embed without a `ToUnicode` CMap. This does not show up as `(cid:NNN)` or `` — it silently remaps to an unrelated, perfectly normal-looking Unicode letter (e.g. an icon renders correctly on screen as a phone or bullet glyph, but its text layer extracts as `Ą`, `å`, or `Ĉ`). This passes a visual read of the PDF and passes a naive `(cid:NNN)`/`` grep, and still corrupts every line that carries an icon. See the expanded check in "ATS Parseability" below.
 
 ### Compile command
 
@@ -27,23 +27,20 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
 \moderncvstyle{banking}
 \moderncvcolor{blue}
 
-% Force both first and last name AND section headings to render in moderncv
-% blue (color1). Default banking on lualatex+MiKTeX leaves these black, which
-% looks inconsistent with the rest of the blue accent scheme.
+% Force both first and last name AND section headings to render in moderncv blue
 \renewcommand*{\firstnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
 \renewcommand*{\lastnamestyle}[1]{{\fontsize{34}{36}\bfseries\upshape\color{color1}#1}}
 \renewcommand*{\sectionstyle}[1]{{\sectionfont\color{color1}#1}}
 
-\usepackage[utf8]{inputenc}
-\usepackage{hyperref}
+\AtBeginDocument{
 \hypersetup{
-    %...
     colorlinks=true,
     linkcolor=blue,
     filecolor=magenta,
     urlcolor=blue,
     pdftitle={[YOUR_NAME] - CV},
-    pdfpagemode=FullScreen %
+    pdfpagemode=FullScreen
+}
 }
 \usepackage[scale=0.77]{geometry}
 \usepackage{import}
@@ -51,13 +48,19 @@ Expected output: `Output written on main_<company>.pdf (2 pages, ...)`. Any page
 % Personal data
 \name{[FIRST_NAME]}{[LAST_NAME]}
 \address{[YOUR_ADDRESS]}{}{}
+
+% Force phone/mobile/email symbols to plain text (prevents Ą glyph corruption)
+\renewcommand*{\phonesymbol}{Tel:~}
+\renewcommand*{\mobilesymbol}{Cel:~}
+\renewcommand*{\emailsymbol}{Email:~}
+
+% Force ATS-safe bullet definitions (prevents Ĉ glyph corruption from dingbat fonts)
+\renewcommand*{\labelitemi}{\strut\textcolor{color1}{\textbullet}}
+\renewcommand*{\labelitemii}{\strut\textcolor{color1}{--}}
+
 \phone[mobile]{[YOUR_PHONE]}
 \email{[YOUR_EMAIL]}
 \extrainfo{\href{[YOUR_LINKEDIN_URL]}{linkedin.com/in/[handle]}, \href{[YOUR_PORTFOLIO_URL]}{[portfolio-domain].com}}
-% The link LABEL must be the literal, human-readable URL text (domain + path),
-% never a bare word like "LinkedIn" or "Portafolio" — hyperlink targets are not
-% part of the PDF text layer, only the visible label is. A bare-word label
-% means that contact channel is completely invisible to an ATS.
 
 \begin{document}
 \makecvtitle
@@ -112,7 +115,6 @@ Write 5-7 lines that function as an "elevator pitch": a concise, compelling intr
 
 **Write it consistently in third person** (e.g. "[Name] es Ingeniero de Software con..."), never first person ("Soy...") and never a mix of both within the same paragraph. Third person reads as a professional summary a recruiter would write about the candidate, which is the ATS/recruiter convention this template follows throughout — check the drafted paragraph for stray first-person verbs ("tengo", "soy", "cuento con" used as self-reference) before finalizing.
 
-**Create 2-3 profile statement templates for your main role types:**
 
 <!-- SETUP: These are populated based on your background -->
 **For [YOUR_PRIMARY_ROLE_TYPE] roles:**

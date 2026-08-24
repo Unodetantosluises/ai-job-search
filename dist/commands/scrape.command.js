@@ -125,10 +125,10 @@ let ScrapeCommand = ScrapeCommand_1 = class ScrapeCommand extends nest_commander
             const tempCoverPath = path.resolve('cover_letters', 'temp_cover.tex');
             await fs.writeFile(tempCvPath, cvLatex, 'utf-8');
             await fs.writeFile(tempCoverPath, coverLatex, 'utf-8');
-            console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (XeTeX/LuaTeX)...\x1b[0m');
+            console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (LuaTeX)...\x1b[0m');
             await Promise.all([
-                this.latexService.compilePdf(tempCvPath, 'xelatex'),
-                this.latexService.compilePdf(tempCoverPath, 'xelatex'),
+                this.latexService.compilePdf(tempCvPath, 'lualatex'),
+                this.latexService.compilePdf(tempCoverPath, 'lualatex'),
             ]);
             console.log('\n\x1b[33m[4/4] Moviendo PDFs al almacenamiento local y limpiando temporales...\x1b[0m');
             const savedPaths = await this.storageService.saveApplicationFiles(savedVacancy.company, savedVacancy.role, tempCvPath.replace('.tex', '.pdf'), tempCoverPath.replace('.tex', '.pdf'), tempCvPath, tempCoverPath);

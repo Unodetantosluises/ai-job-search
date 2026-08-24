@@ -161,12 +161,13 @@ export class ApplyCommand extends CommandRunner {
       await fs.writeFile(tempCvPath, cvLatex, 'utf-8');
       await fs.writeFile(tempCoverPath, coverLatex, 'utf-8');
 
-      console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (XeTeX/LuaTeX)...\x1b[0m');
+      console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (LuaTeX)...\x1b[0m');
       
       await Promise.all([
-        this.latexService.compilePdf(tempCvPath, 'xelatex'),
-        this.latexService.compilePdf(tempCoverPath, 'xelatex'),
+        this.latexService.compilePdf(tempCvPath, 'lualatex'),
+        this.latexService.compilePdf(tempCoverPath, 'lualatex'),
       ]);
+
 
       // 5. ARCHIVO FINAL (La Memoria y Storage)
       console.log('\n\x1b[33m[4/4] Moviendo PDFs al almacenamiento local y limpiando temporales...\x1b[0m');

@@ -69,7 +69,7 @@ export class LatexService {
   /**
    * Compiles a .tex file to PDF using XeTeX or LuaTeX in an ephemeral Docker container.
    */
-  async compilePdf(filePath: string, engine: 'lualatex' | 'xelatex' = 'xelatex'): Promise<void> {
+  async compilePdf(filePath: string, engine: 'lualatex' | 'xelatex' = 'lualatex'): Promise<void> {
     const absolutePath = path.resolve(filePath);
     const fileDir = path.dirname(absolutePath);
     const fileName = path.basename(absolutePath);

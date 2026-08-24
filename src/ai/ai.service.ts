@@ -209,21 +209,32 @@ CRITICAL RULES:
         text = text.replace(/```latex/g, '').replace(/```/g, '').trim();
       }
 
-      // Evitar clashes de hyperref y corregir glifos de iconos de contacto faltantes en moderncv (CV)
+      // Evitar clashes de hyperref, remover inputenc y corregir glifos de iconos de contacto y viñetas en moderncv (CV)
       if (templateType === 'cv') {
         text = text.replace(/\\usepackage\[?[^\]]*\]?{hyperref}/g, '% \\usepackage{hyperref} (evitado clash con la clase moderncv)');
+        text = text.replace(/\\usepackage\[?[^\]]*\]?{inputenc}/g, '% \\usepackage{inputenc} (evitado con LuaLaTeX)');
         
         // Envolver \hypersetup en \AtBeginDocument si no lo está ya, para evitar errores en moderncv
         if (text.includes('\\hypersetup') && !text.includes('\\AtBeginDocument')) {
           text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
         }
 
-        // Forzar redefinición de símbolos de contacto a texto plano para evitar cuadros grises de glifos faltantes (FontAwesome) y corrupción en lectura de ATS
-        if (!text.includes('phonesymbol')) {
-          const symbolOverrides = `\\renewcommand*{\\phonesymbol}{Tel:\\ }\n\\renewcommand*{\\mobilesymbol}{Cel:\\ }\n\\renewcommand*{\\emailsymbol}{Email:\\ }\n`;
-          text = text.replace('\\begin{document}', `${symbolOverrides}\\begin{document}`);
-        }
+        // Forzar redefinición de símbolos de contacto y viñetas a texto plano para garantizar compatibilidad ATS y evitar glifos corruptos (Ą, Ĉ, å)
+        const atsOverrides = [
+          '\\renewcommand*{\\phonesymbol}{Tel:~}',
+          '\\renewcommand*{\\mobilesymbol}{Cel:~}',
+          '\\renewcommand*{\\emailsymbol}{Email:~}',
+          '\\renewcommand*{\\labelitemi}{\\strut\\textcolor{color1}{\\textbullet}}',
+          '\\renewcommand*{\\labelitemii}{\\strut\\textcolor{color1}{--}}',
+        ].join('\n') + '\n';
+
+        // Si el archivo ya tiene redefiniciones parciales, las limpiamos para poner el bloque canónico y completo
+        text = text.replace(/\\renewcommand\*?\{\\(?:phone|mobile|email)symbol\}\{[^}]*\}/g, '');
+        text = text.replace(/\\renewcommand\*?\{\\labelitemi[i]?\}\{[^}]*\}/g, '');
+
+        text = text.replace('\\begin{document}', `${atsOverrides}\\begin{document}`);
       }
+
 
       // Escapar caracteres '&' que el modelo suele generar sin escapar (ej. "CI/CD & Docker" -> "CI/CD \& Docker")
       text = text.replace(/(?<!\\)&/g, '\\&');
