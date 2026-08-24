@@ -279,6 +279,131 @@ El documento Markdown que generes DEBE incluir las siguientes secciones obligato
         });
         return chat;
     }
+    async generateBehavioralProfile(answers) {
+        if (!this.genAI) {
+            throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
+        }
+        const systemInstruction = `Eres un especialista en evaluación de perfiles profesionales y conductuales.
+Tu tarea es leer las respuestas abiertas que un candidato proporcionó sobre su forma de trabajar, estilo de colaboración, entorno ideal y áreas de mejora, y transformarlas en un documento de perfil conductual estructurado en Markdown.
+
+El documento que generes DEBE seguir EXACTAMENTE esta estructura (usa los mismos encabezados):
+
+# Behavioral Profile
+
+<!-- Populated via structured interview session — no formal assessment tool used -->
+
+## Overview
+[NOMBRE] is a **[TIPO_PERFIL_2_PALABRAS]** pattern: [2-3 oraciones describiendo al candidato de forma precisa y honesta, en tercera persona].
+
+## Core Behavioral Drives
+
+| Drive | Level | Meaning |
+|-------|-------|---------|
+| [Drive 1] | High / Medium-High / Medium / Low | [Descripción concreta] |
+| [Drive 2] | ... | ... |
+| [Drive 3] | ... | ... |
+| [Drive 4] | ... | ... |
+
+## Strongest Behaviors
+
+- **[Comportamiento 1]:** [Descripción concreta y verificable con las respuestas]
+- **[Comportamiento 2]:** [...]
+- **[Comportamiento 3]:** [...]
+
+## How You Work Best
+
+- [Condición de entorno 1]
+- [Condición de entorno 2]
+- [Condición de entorno 3]
+- [Condición de entorno 4]
+
+## Growth Areas (frame positively in applications)
+
+- **[Área 1]:** **Frame as:** "[Cómo presentarlo positivamente en entrevistas]"
+- **[Área 2]:** **Frame as:** "[...]"
+- **[Área 3 si aplica]:** **Frame as:** "[...]"
+
+## Mapping to Job Posting Language
+
+When a job posting mentions these keywords, it's a **strong behavioral fit**:
+- "[keyword 1]" / "[sinónimo]"
+- "[keyword 2]"
+[4-8 keywords]
+
+When a job posting mentions these, flag as **potential friction** (not deal-breaker):
+- "[keyword conflictivo 1]" ([breve explicación])
+- "[keyword conflictivo 2]" ([...])
+[3-5 keywords]
+
+## Management Style Preferences
+
+- **Works well with:** [descripción concreta]
+- **Doesn't work well with:** [descripción concreta]
+
+## Using This in Applications
+
+- **Cover letters:** [Qué tono usar, qué framing aplicar]
+- **CV:** [Qué tipo de bullets enfatizar]
+- **Interviews:** [Qué tipo de ejemplos STAR funcionan mejor]
+- **Don't overstate:** [Qué NO afirmar aunque suene bien]
+
+REGLAS:
+- Escribe el documento completo en INGLÉS.
+- No uses placeholders como [YOUR_NAME] — usa el nombre real si está disponible, o "The candidate" si no.
+- Sé honesto y específico. Si el candidato menciona una debilidad real, nómbrala con precisión y proporciona el reframe positivo.
+- No inventes información que no esté en las respuestas.
+- Devuelve SOLO el contenido Markdown, sin bloques de código adicionales.`;
+        const answersText = Object.entries(answers)
+            .map(([key, value]) => `${key}:\n${value}`)
+            .join('\n\n');
+        const userPrompt = `A continuación están las respuestas del candidato a las preguntas de perfil conductual. Genera el documento 02-behavioral-profile.md completo.
+
+RESPUESTAS DEL CANDIDATO:
+${answersText}`;
+        this.logger.log('Generando perfil conductual con Gemini...');
+        const model = this.genAI.getGenerativeModel({
+            model: 'gemini-3.1-flash-lite',
+            systemInstruction,
+        });
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        });
+        let text = result.response.text();
+        text = text.replace(/^```(?:markdown)?\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+        return text;
+    }
+    async generateCareerGoals(answers) {
+        if (!this.genAI) {
+            throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
+        }
+        const systemInstruction = `Eres un coach de carrera experto. A partir de las respuestas del candidato sobre sus metas profesionales y preferencias de trabajo, genera un bloque de texto para completar la sección de Career Alignment de un framework de evaluación de vacantes.
+
+Devuelve ÚNICAMENTE un objeto JSON con esta estructura exacta (sin bloques de código, solo el JSON):
+{
+  "career_goal_1": "Meta de carrera 1 en una oración concisa",
+  "career_goal_2": "Meta de carrera 2",
+  "career_goal_3": "Meta de carrera 3",
+  "energizing_tasks": "Lista de tareas que energizan, separadas por comas",
+  "draining_tasks": "Lista de tareas que drenan energía, separadas por comas"
+}
+
+Sé honesto y específico. No generes metas genéricas como "crecer profesionalmente". Usa el lenguaje del candidato.`;
+        const answersText = Object.entries(answers)
+            .map(([key, value]) => `${key}:\n${value}`)
+            .join('\n\n');
+        const userPrompt = `RESPUESTAS DEL CANDIDATO SOBRE METAS DE CARRERA:\n${answersText}`;
+        this.logger.log('Generando metas de carrera con Gemini...');
+        const model = this.genAI.getGenerativeModel({
+            model: 'gemini-3.1-flash-lite',
+            systemInstruction,
+        });
+        const result = await model.generateContent({
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        });
+        let text = result.response.text().trim();
+        text = text.replace(/^```(?:json)?\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+        return text;
+    }
 };
 exports.AiService = AiService;
 exports.AiService = AiService = AiService_1 = __decorate([

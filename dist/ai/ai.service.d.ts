@@ -17,4 +17,6 @@ export declare class AiService implements OnModuleInit {
     buildCandidateProfile(rawText: string): Promise<string>;
     generatePrepPack(vacancy: Vacancy, cvContent: string, coverLetterContent: string, stageDetails: string): Promise<string>;
     startMockInterviewSession(systemInstruction: string): Promise<import("@google/generative-ai").ChatSession>;
+    generateBehavioralProfile(answers: Record<string, string>): Promise<string>;
+    generateCareerGoals(answers: Record<string, string>): Promise<string>;
 }

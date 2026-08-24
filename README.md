@@ -9,26 +9,34 @@ Esta es una herramienta de línea de comandos (CLI) moderna, interactiva y exten
 
 ## 🚀 Flujo de Trabajo Recomendado
 
-El ciclo de postulación completo se realiza en 3 pasos sencillos desde tu terminal:
+El ciclo completo de búsqueda y postulación se realiza en estas etapas desde tu terminal:
 
 ```mermaid
 graph TD
-    A[1. Setup: Cargar Documentos] -->|npm run cli -- setup| B(01-candidate-profile.md Generado)
-    B --> C[2. Scrape: Extraer Oferta]
-    C -->|npm run cli -- scrape -u URL| D{¿Postularse interactivo?}
-    D -->|Sí| E[3. Apply: Evaluar y Compilar]
-    D -->|No| F[Guardado en DB SQLite en_espera]
-    E -->|IA + Docker XeTeX| G[CV y Carta PDF en local_storage/]
+    A["🛠️ setup (Fase 1)\nLee documentos de documents/"] --> B["01-candidate-profile.md\ngenerado por Gemini"]
+    A --> C["🛠️ setup (Fase 2 — opcional)\nPreguntas interactivas"]
+    C --> D["02-behavioral-profile.md\n+ metas en 04-job-evaluation.md"]
+    B --> E["🔍 scrape -u URL\nExtrae vacante del portal"]
+    D --> E
+    E --> F{"¿Aplicar ahora?"}
+    F -->|"Sí, apply interactivo"| G["📄 apply\nEvalúa fit + genera CV y Carta PDF"]
+    F -->|"No, guardar"| H["💾 DB SQLite\nEstado: EN_ESPERA"]
+    H --> G
+    G --> I["📁 local_storage/\nCV y Carta en PDF"]
+    I --> J["🎤 interview -i ID\nPrep Pack + Simulacro interactivo"]
+    J --> K["🔄 status -i ID -s ESTADO\nActualizar resultado"]
+    I --> L["📋 list\nHistorial de postulaciones"]
 ```
 
 ---
 
 ## 🛠️ Características Principales
 
-1. **Automatización del Perfil de Candidato (`setup`)**:
-   * Escanea tus carpetas locales de CVs, diplomas, LinkedIn y referencias.
-   * Extrae texto plano de archivos `.txt`, `.md` y `.pdf` (usando `pdf-parse`).
-   * Gemini analiza y estructura tu perfil consolidado en `docs_prompts/skills/job-application-assistant/01-candidate-profile.md`.
+1. **Configuración de Perfil del Candidato (`setup`) — Dos fases**:
+   * **Fase 1 — Documentos**: Escanea tus carpetas locales de CVs, diplomas, LinkedIn y referencias. Extrae texto de `.txt`, `.md` y `.pdf` (usando `pdf-parse`). Gemini estructura tu perfil en `01-candidate-profile.md`.
+   * **Fase 2 — Perfil Interactivo (opcional)**: Mediante preguntas en la terminal (~15 min), recolecta tu estilo de trabajo, entorno ideal, áreas de mejora y metas de carrera. Gemini sintetiza las respuestas y genera:
+     * `02-behavioral-profile.md` — perfil conductual para calibrar el tono de tus cartas de presentación.
+     * Metas de carrera en `04-job-evaluation.md` — para personalizar el scoring de vacantes.
 
 2. **Scraping Inteligente y Evasión de Bloqueos (`scrape`)**:
    * Navegación automatizada con **Playwright** y evasión anti-bot integrada con **Stealth**.
@@ -45,9 +53,15 @@ graph TD
    * Compilación a través de contenedores **Docker** temporales.
    * Auto-limpieza de archivos auxiliares (`.aux`, `.log`, `.out`).
 
-5. **Persistencia Local**:
+5. **Historial y Gestión de Postulaciones (`list`, `status`)**:
    * Base de datos SQLite (`job_search.sqlite`) gestionada por TypeORM.
-   * Trazabilidad completa de vacantes, postulaciones y evaluaciones con borrado relacional en cascada (`onDelete: 'CASCADE'`).
+   * Trazabilidad completa de vacantes, postulaciones y evaluaciones con borrado relacional en cascada.
+   * Visualización del historial como tabla en la terminal.
+   * Actualización de estado directamente desde la CLI.
+
+6. **Preparación y Simulacro de Entrevista (`interview`)**:
+   * Genera un "Prep Pack" personalizado en Markdown basado en la vacante y tus documentos reales.
+   * Ejecuta un simulacro interactivo en la terminal con Gemini actuando como entrevistador.
 
 ---
 
@@ -87,16 +101,35 @@ graph TD
 ## 💻 Comandos de la CLI
 
 ### 1. Inicializar Perfil de Candidato
-Analiza los archivos colocados en `documents/` y genera tu perfil consolidado:
+Configura tu perfil completo en dos fases desde la terminal:
+
 ```bash
 npm run cli -- setup
 ```
+
+**Fase 1 — Documentos (automática):**
+Lee todos los archivos de `documents/` (subcarpetas `cv/`, `diplomas/`, `linkedin/`, `references/`) y genera `01-candidate-profile.md` usando Gemini. Si no hay documentos, esta fase se omite con un aviso y continúa a la Fase 2.
+
+**Fase 2 — Perfil Interactivo (opcional, ~10-15 min):**
+El comando preguntará si deseas configurar también tu perfil conductual y metas de carrera. Si aceptas, responderás 20 preguntas agrupadas en bloques:
+
+| Bloque | Preguntas | Genera |
+|--------|-----------|--------|
+| A-C — Estilo de trabajo, entorno y mejoras | 15 preguntas abiertas | `02-behavioral-profile.md` |
+| D-E — Metas de carrera y preferencias | 5 preguntas abiertas | Sección de metas en `04-job-evaluation.md` |
+
+> [!TIP]
+> Si ya completaste la Fase 2 anteriormente, el comando detectará que `02-behavioral-profile.md` tiene contenido real y te preguntará si deseas sobrescribirlo antes de proceder.
+
+---
 
 ### 2. Raspar Vacante por URL
 Extrae los datos de la vacante, los guarda en la DB SQLite local en estado `EN_ESPERA` y te pregunta interactivamente si deseas generar los PDFs en ese instante:
 ```bash
 npm run cli -- scrape -u "https://mx.computrabajo.com/trabajo-de-desarrollador-node-js"
 ```
+
+---
 
 ### 3. Postulación Directa (Manual)
 Si no deseas hacer scraping de la URL, puedes ingresar la vacante de forma manual pasándole flags para control de idioma y país de trazabilidad:
@@ -107,12 +140,16 @@ npm run cli -- apply -c "AeroTech" -r "Senior NestJS Engineer" -d "Buscamos un d
   * `-l, --language [language]`: Idioma para los documentos (por defecto "Español").
   * `-ct, --country [country]`: Ubicación de la vacante (por defecto "No especificado").
 
+---
+
 ### 4. Listar Historial de Postulaciones
 Visualiza el historial completo de tus postulaciones directamente en tu terminal como una tabla organizada por fecha de postulación descendente:
 ```bash
 npm run cli -- list
 ```
-* Muestra información de: ID, Empresa, Puesto, Modalidad, Estado de Postulación, Puntuación de Ajuste (Score) de IA y Fecha de postulación.
+* Muestra: ID, Empresa, Puesto, Modalidad, Estado, Score de IA y Fecha de postulación.
+
+---
 
 ### 5. Actualizar Estado de Postulación
 Modifica el estado de una postulación registrada en tu base de datos SQLite por su ID:
@@ -121,7 +158,9 @@ npm run cli -- status -i <id_postulacion> -s <nuevo_estado>
 ```
 * **Flags obligatorios**:
   * `-i, --id <id>`: ID numérico de la postulación.
-  * `-s, --status <status>`: Nuevo estado a asignar (`EN_ESPERA`, `ENVIADO`, `ENTREVISTA`, `RECHAZADO`). El comando normaliza automáticamente a mayúsculas.
+  * `-s, --status <status>`: Nuevo estado a asignar. Valores válidos: `EN_ESPERA`, `ENVIADO`, `ENTREVISTA`, `RECHAZADO`. El comando normaliza automáticamente a mayúsculas.
+
+---
 
 ### 6. Preparación y Simulacro de Entrevista
 Genera una guía de preparación estructurada ("Prep Pack") y ejecuta una simulación interactiva de entrevista técnica/comportamental en la terminal basada en la vacante y tus documentos reales:
@@ -134,7 +173,9 @@ npm run cli -- interview -i <id_postulacion>
   1. Te solicita el nombre de la etapa y el entrevistador de forma interactiva.
   2. Lee el código fuente del CV y Carta de Presentación guardados en el almacenamiento de la vacante.
   3. Genera y guarda una guía de estudio personalizada en Markdown (`interview_prep_{etapa}.md`).
-  4. Inicia un chat en la terminal con Gemini actuando como reclutador/entrevistador, haciendo preguntas y repreguntas técnicas y de comportamiento. Escribe `salir` para terminar la sesión.
+  4. Inicia un chat en la terminal con Gemini actuando como reclutador/entrevistador. Escribe `salir` para terminar la sesión.
+
+---
 
 ### 7. Pruebas del Entorno
 Ejecuta diagnósticos rápidos del estado de la API, Docker y base de datos:
@@ -163,14 +204,14 @@ El CLI cuenta con lógicas de evasión y selectores optimizados para los siguien
 
 El sistema utiliza un **patrón Strategy simple** dentro del servicio del Scraper. Para dar soporte a un nuevo portal de empleo (por ejemplo, `indeed.com`):
 
-1. Abre el archivo [scraper.service.ts](src\scraper\scraper.service.ts).
+1. Abre el archivo [scraper.service.ts](src/scraper/scraper.service.ts).
 2. Agrega un bloque condicional en el método `extractVacancyData` comprobando el dominio:
    ```typescript
    } else if (hostname.includes('indeed.com')) {
      this.logger.log('Procesando portal Indeed...');
      // Esperar a que cargue el elemento principal
      await page.waitForSelector('.jobsearch-JobComponent', { timeout: 15000 }).catch(() => {});
-     
+
      // Extraer los textos usando getTextContent con las clases CSS del portal
      title = await this.getTextContent(page, 'h1.jobsearch-JobInfoHeader-title');
      company = await this.getTextContent(page, '.jobsearch-CompanyInfoWithoutHeaderImage');

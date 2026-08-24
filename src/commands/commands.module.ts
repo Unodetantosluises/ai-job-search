@@ -1,7 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApplyCommand, ApplyQuestions, ConfirmQuestions } from './apply.command';
-import { SetupCommand } from './setup.command';
+import {
+  SetupCommand,
+  SetupConfirmQuestion,
+  SetupOverwriteConfirmQuestion,
+  SetupBehavioralQuestions,
+  SetupCareerQuestions,
+} from './setup.command';
+
 import { ScrapeCommand, ScrapeConfirmQuestions } from './scrape.command';
 import { ListCommand } from './list.command';
 import { StatusCommand } from './status.command';
@@ -32,6 +39,11 @@ import { Evaluation } from '../database/entities/evaluation.entity';
     ApplyQuestions,
     ConfirmQuestions,
     SetupCommand,
+    SetupConfirmQuestion,
+    SetupOverwriteConfirmQuestion,
+    SetupBehavioralQuestions,
+    SetupCareerQuestions,
+
     ScrapeCommand,
     ScrapeConfirmQuestions,
     ListCommand,
