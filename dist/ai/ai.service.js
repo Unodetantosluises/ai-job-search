@@ -171,16 +171,16 @@ CRITICAL RULES:
                 if (text.includes('\\hypersetup') && !text.includes('\\AtBeginDocument')) {
                     text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
                 }
-                const atsOverrides = [
-                    '\\renewcommand*{\\phonesymbol}{Tel:~}',
-                    '\\renewcommand*{\\mobilesymbol}{Cel:~}',
-                    '\\renewcommand*{\\emailsymbol}{Email:~}',
-                    '\\renewcommand*{\\labelitemi}{\\strut\\textcolor{color1}{\\textbullet}}',
-                    '\\renewcommand*{\\labelitemii}{\\strut\\textcolor{color1}{--}}',
-                ].join('\n') + '\n';
-                text = text.replace(/\\renewcommand\*?\{\\(?:phone|mobile|email)symbol\}\{[^}]*\}/g, '');
-                text = text.replace(/\\renewcommand\*?\{\\labelitemi[i]?\}\{[^}]*\}/g, '');
-                text = text.replace('\\begin{document}', `${atsOverrides}\\begin{document}`);
+                const atsBlock = `
+\\AtBeginDocument{
+  \\renewcommand*{\\phonesymbol}{Tel:~}
+  \\renewcommand*{\\mobilesymbol}{Cel:~}
+  \\renewcommand*{\\emailsymbol}{Email:~}
+  \\renewcommand*{\\labelitemi}{\\textcolor{color1}{\\textbullet}}
+  \\renewcommand*{\\labelitemii}{\\textcolor{color1}{--}}
+}
+`;
+                text = text.replace('\\begin{document}', `${atsBlock}\n\\begin{document}`);
             }
             text = text.replace(/(?<!\\)&/g, '\\&');
             return text;

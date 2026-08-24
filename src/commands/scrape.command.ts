@@ -160,11 +160,12 @@ export class ScrapeCommand extends CommandRunner {
       await fs.writeFile(tempCoverPath, coverLatex, 'utf-8');
 
       // Compilación en Docker
-      console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (LuaTeX)...\x1b[0m');
+      console.log('\n\x1b[33m[3/4] Compilando documentos LaTeX a PDF mediante Docker (LuaTeX para CV, XeTeX para Carta)...\x1b[0m');
       await Promise.all([
         this.latexService.compilePdf(tempCvPath, 'lualatex'),
-        this.latexService.compilePdf(tempCoverPath, 'lualatex'),
+        this.latexService.compilePdf(tempCoverPath, 'xelatex'),
       ]);
+
 
 
       // Mover archivos al almacenamiento estructurado

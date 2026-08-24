@@ -59,7 +59,7 @@ Ingeniero de Software y Desarrollador Full Stack con más de 2 años de experien
 *   **Frontend:** Angular, Bootstrap.
 *   **Backend:** NestJS, Spring, Express.js, REST APIs, Supabase.
 *   **Bases de Datos:** PostgreSQL, SQL Server, DBeaver.
-*   **DevOps y Herramientas:** Docker, Git, GitHub, GitHub Actions, Azure DevOps, Postman.
+*   **DevOps y Herramientas:** Docker, Git, GitHub, GitHub Actions, Azure DevOps, Postman, Jira.
 *   **Diseño:** Figma, Adobe XD.
 
 #### Habilidades Blandas

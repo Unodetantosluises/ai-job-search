@@ -219,21 +219,19 @@ CRITICAL RULES:
           text = text.replace(/\\hypersetup\s*\{([^}]*)\}/gs, '\\AtBeginDocument{\\hypersetup{$1}}');
         }
 
-        // Forzar redefinición de símbolos de contacto y viñetas a texto plano para garantizar compatibilidad ATS y evitar glifos corruptos (Ą, Ĉ, å)
-        const atsOverrides = [
-          '\\renewcommand*{\\phonesymbol}{Tel:~}',
-          '\\renewcommand*{\\mobilesymbol}{Cel:~}',
-          '\\renewcommand*{\\emailsymbol}{Email:~}',
-          '\\renewcommand*{\\labelitemi}{\\strut\\textcolor{color1}{\\textbullet}}',
-          '\\renewcommand*{\\labelitemii}{\\strut\\textcolor{color1}{--}}',
-        ].join('\n') + '\n';
-
-        // Si el archivo ya tiene redefiniciones parciales, las limpiamos para poner el bloque canónico y completo
-        text = text.replace(/\\renewcommand\*?\{\\(?:phone|mobile|email)symbol\}\{[^}]*\}/g, '');
-        text = text.replace(/\\renewcommand\*?\{\\labelitemi[i]?\}\{[^}]*\}/g, '');
-
-        text = text.replace('\\begin{document}', `${atsOverrides}\\begin{document}`);
+        // Forzar redefinición de símbolos de contacto y viñetas dentro de \AtBeginDocument para evitar errores de modo horizontal en el preámbulo y garantizar compatibilidad ATS
+        const atsBlock = `
+\\AtBeginDocument{
+  \\renewcommand*{\\phonesymbol}{Tel:~}
+  \\renewcommand*{\\mobilesymbol}{Cel:~}
+  \\renewcommand*{\\emailsymbol}{Email:~}
+  \\renewcommand*{\\labelitemi}{\\textcolor{color1}{\\textbullet}}
+  \\renewcommand*{\\labelitemii}{\\textcolor{color1}{--}}
+}
+`;
+        text = text.replace('\\begin{document}', `${atsBlock}\n\\begin{document}`);
       }
+
 
 
       // Escapar caracteres '&' que el modelo suele generar sin escapar (ej. "CI/CD & Docker" -> "CI/CD \& Docker")
