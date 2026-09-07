@@ -145,10 +145,11 @@ Debe tener experiencia diseñando APIs RESTful robustas y configurando bases de 
 Deseable conocimiento en compilers y TeX Live.
 `;
       const candidatoPerfil = `
-Luis Díaz es un ingeniero de software con 6 años de experiencia en backend usando Node.js, NestJS, Express, y TypeScript.
+Alex Dev es un ingeniero de software con 6 años de experiencia en backend usando Node.js, NestJS, Express, y TypeScript.
 Ha desarrollado sistemas de alta disponibilidad e integrado diversas APIs. Posee conocimientos de Docker, Docker Compose, 
 bases de datos PostgreSQL y MySQL, y tiene nociones básicas de compilación LaTeX.
 `;
+
 
       try {
         console.log('1. Probando evaluateFit (Ajuste cuantitativo/cualitativo en formato JSON)...');
