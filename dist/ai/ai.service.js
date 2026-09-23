@@ -23,11 +23,54 @@ let AiService = AiService_1 = class AiService {
     }
     onModuleInit() {
         const apiKey = this.configService.get('GEMINI_API_KEY');
+        this.modelName = this.configService.get('GEMINI_MODEL') || 'gemini-3.1-flash-lite';
         if (!apiKey) {
             this.logger.error('GEMINI_API_KEY no está definida en las variables de entorno o archivo .env.');
             return;
         }
         this.genAI = new generative_ai_1.GoogleGenerativeAI(apiKey);
+        this.logger.log(`AiService inicializado con el modelo Gemini: ${this.modelName}`);
+    }
+    getModelName() {
+        return this.modelName;
+    }
+    getModel(options) {
+        if (!this.genAI) {
+            throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
+        }
+        return this.genAI.getGenerativeModel({
+            model: options?.model || this.modelName,
+            systemInstruction: options?.systemInstruction,
+        });
+    }
+    async validateModelConnection() {
+        if (!this.genAI) {
+            return {
+                ok: false,
+                message: 'GEMINI_API_KEY no está configurada en el entorno o archivo .env.',
+                model: this.modelName || 'desconocido',
+            };
+        }
+        try {
+            const model = this.getModel();
+            const result = await model.generateContent({
+                contents: [{ role: 'user', parts: [{ text: 'Responde únicamente con "OK".' }] }],
+            });
+            const response = await result.response;
+            const text = response.text().trim();
+            return {
+                ok: true,
+                message: `Conexión exitosa con el modelo (Respuesta: "${text}")`,
+                model: this.modelName,
+            };
+        }
+        catch (error) {
+            return {
+                ok: false,
+                message: `Fallo al conectar con Google Gemini: ${error.message}`,
+                model: this.modelName,
+            };
+        }
     }
     async loadSystemPrompt(fileName) {
         try {
@@ -69,8 +112,7 @@ let AiService = AiService_1 = class AiService {
                 this.logger.warn(`No se pudo leer el perfil unificado de 01-candidate-profile.md: ${err.message}. Se usará el parámetro provisto.`);
                 finalProfile = candidateProfile || '';
             }
-            const model = this.genAI.getGenerativeModel({
-                model: 'gemini-3.1-flash-lite',
+            const model = this.getModel({
                 systemInstruction: systemContext || undefined,
             });
             const userPrompt = `
@@ -130,8 +172,7 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
                 this.logger.warn(`No se pudo leer el perfil unificado de 01-candidate-profile.md: ${err.message}. Se usará el parámetro provisto.`);
                 finalProfile = candidateProfile || '';
             }
-            const model = this.genAI.getGenerativeModel({
-                model: 'gemini-3.1-flash-lite',
+            const model = this.getModel({
                 systemInstruction: systemContext || undefined,
             });
             const userPrompt = `
@@ -196,8 +237,7 @@ CRITICAL RULES:
         }
         try {
             const systemInstruction = `Eres un analizador de perfiles profesionales. Tu tarea es leer el texto extraído de los documentos del candidato y generar un perfil estructurado y detallado en formato Markdown. Organiza la información en secciones claras: Resumen, Experiencia Laboral, Proyectos, Educación, Habilidades Duras y Blandas. NO inventes información. Si no hay datos sobre algo, omítelo.`;
-            const model = this.genAI.getGenerativeModel({
-                model: 'gemini-3.1-flash-lite',
+            const model = this.getModel({
                 systemInstruction,
             });
             const userPrompt = `
@@ -228,8 +268,7 @@ ${rawText}
 Deberás basarte estrictamente en la información provista en la descripción de la vacante, el CV del candidato y su carta de presentación.
 Bajo ninguna circunstancia debes inventar (alucinar) habilidades, certificaciones, puestos de trabajo, clientes, proyectos o años de experiencia que no estén detallados en el CV o la carta.
 Responde en el mismo idioma que el detalle de la etapa y los documentos (normalmente español).`;
-        const model = this.genAI.getGenerativeModel({
-            model: 'gemini-3.1-flash-lite',
+        const model = this.getModel({
             systemInstruction,
         });
         const userPrompt = `
@@ -277,8 +316,7 @@ El documento Markdown que generes DEBE incluir las siguientes secciones obligato
     }
     async startMockInterviewSession(systemInstruction) {
         this.logger.log('Iniciando sesión de chat interactiva para simulacro de entrevista...');
-        const model = this.genAI.getGenerativeModel({
-            model: 'gemini-3.1-flash-lite',
+        const model = this.getModel({
             systemInstruction,
         });
         const chat = model.startChat({
@@ -368,8 +406,7 @@ REGLAS:
 RESPUESTAS DEL CANDIDATO:
 ${answersText}`;
         this.logger.log('Generando perfil conductual con Gemini...');
-        const model = this.genAI.getGenerativeModel({
-            model: 'gemini-3.1-flash-lite',
+        const model = this.getModel({
             systemInstruction,
         });
         const result = await model.generateContent({
@@ -400,8 +437,7 @@ Sé honesto y específico. No generes metas genéricas como "crecer profesionalm
             .join('\n\n');
         const userPrompt = `RESPUESTAS DEL CANDIDATO SOBRE METAS DE CARRERA:\n${answersText}`;
         this.logger.log('Generando metas de carrera con Gemini...');
-        const model = this.genAI.getGenerativeModel({
-            model: 'gemini-3.1-flash-lite',
+        const model = this.getModel({
             systemInstruction,
         });
         const result = await model.generateContent({

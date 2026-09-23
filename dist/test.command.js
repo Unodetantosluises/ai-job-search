@@ -120,18 +120,28 @@ let TestCommand = class TestCommand extends nest_commander_1.CommandRunner {
         }
         if (inputs.includes('ai')) {
             console.log('\n--- Ejecutando Prueba de Inteligencia Artificial (Google Gemini API) ---');
-            const vacanteDesc = `
+            console.log(`Modelo en uso: ${this.aiService.getModelName()}`);
+            try {
+                console.log('\n0. Probando conexión en vivo y salud del modelo...');
+                const health = await this.aiService.validateModelConnection();
+                if (health.ok) {
+                    console.log(`✅ [Salud del Modelo]: ${health.message}`);
+                }
+                else {
+                    console.error(`❌ [Salud del Modelo]: ${health.message}`);
+                    return;
+                }
+                const vacanteDesc = `
 Buscamos un Desarrollador Backend Senior experto en Node.js, NestJS y Docker.
 Debe tener experiencia diseñando APIs RESTful robustas y configurando bases de datos relacionales.
 Deseable conocimiento en compilers y TeX Live.
 `;
-            const candidatoPerfil = `
+                const candidatoPerfil = `
 Alex Dev es un ingeniero de software con 6 años de experiencia en backend usando Node.js, NestJS, Express, y TypeScript.
 Ha desarrollado sistemas de alta disponibilidad e integrado diversas APIs. Posee conocimientos de Docker, Docker Compose, 
 bases de datos PostgreSQL y MySQL, y tiene nociones básicas de compilación LaTeX.
 `;
-            try {
-                console.log('1. Probando evaluateFit (Ajuste cuantitativo/cualitativo en formato JSON)...');
+                console.log('\n1. Probando evaluateFit (Ajuste cuantitativo/cualitativo en formato JSON)...');
                 const evalResult = await this.aiService.evaluateFit(vacanteDesc, candidatoPerfil);
                 console.log('Objeto JSON parseado con éxito:');
                 console.log(`- Score: ${evalResult.score}`);

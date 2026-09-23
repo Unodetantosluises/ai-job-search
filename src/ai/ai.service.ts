@@ -9,17 +9,74 @@ import { Vacancy } from '../database/entities/vacancy.entity';
 export class AiService implements OnModuleInit {
   private readonly logger = new Logger(AiService.name);
   private genAI: GoogleGenerativeAI;
+  private modelName: string;
 
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit() {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    this.modelName = this.configService.get<string>('GEMINI_MODEL') || 'gemini-3.1-flash-lite';
     if (!apiKey) {
       this.logger.error('GEMINI_API_KEY no está definida en las variables de entorno o archivo .env.');
       return;
     }
     this.genAI = new GoogleGenerativeAI(apiKey);
+    this.logger.log(`AiService inicializado con el modelo Gemini: ${this.modelName}`);
   }
+
+  /**
+   * Obtiene el nombre del modelo configurado actualmente
+   */
+  getModelName(): string {
+    return this.modelName;
+  }
+
+  /**
+   * Helper centralizado para instanciar el modelo de Gemini con soporte para instrucciones de sistema
+   */
+  private getModel(options?: { systemInstruction?: string; model?: string }) {
+    if (!this.genAI) {
+      throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
+    }
+    return this.genAI.getGenerativeModel({
+      model: options?.model || this.modelName,
+      systemInstruction: options?.systemInstruction,
+    });
+  }
+
+  /**
+   * Valida la conexión en vivo con el modelo configurado de Gemini
+   */
+  async validateModelConnection(): Promise<{ ok: boolean; message: string; model: string }> {
+    if (!this.genAI) {
+      return {
+        ok: false,
+        message: 'GEMINI_API_KEY no está configurada en el entorno o archivo .env.',
+        model: this.modelName || 'desconocido',
+      };
+    }
+
+    try {
+      const model = this.getModel();
+      const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: 'Responde únicamente con "OK".' }] }],
+      });
+      const response = await result.response;
+      const text = response.text().trim();
+      return {
+        ok: true,
+        message: `Conexión exitosa con el modelo (Respuesta: "${text}")`,
+        model: this.modelName,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        message: `Fallo al conectar con Google Gemini: ${error.message}`,
+        model: this.modelName,
+      };
+    }
+  }
+
 
   /**
    * Helper to load system prompt instructions from docs_prompts/commands/
@@ -84,11 +141,11 @@ export class AiService implements OnModuleInit {
         finalProfile = candidateProfile || '';
       }
       
-      // Pasar systemInstruction de forma nativa en la configuración del modelo
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-3.1-flash-lite',
+      // Usar getModel centralizado con systemInstruction
+      const model = this.getModel({
         systemInstruction: systemContext || undefined,
       });
+
 
       const userPrompt = `
 Deberás evaluar el perfil del candidato respecto a la vacante y retornar un objeto JSON con dos propiedades obligatorias: 
@@ -167,11 +224,11 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
         finalProfile = candidateProfile || '';
       }
 
-      // Pasar systemInstruction de forma nativa en la configuración del modelo
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-3.1-flash-lite',
+      // Usar getModel centralizado con systemInstruction
+      const model = this.getModel({
         systemInstruction: systemContext || undefined,
       });
+
 
       const userPrompt = `
 Genera el código LaTeX puro para un ${templateType === 'cv' ? 'Currículum Vitae (CV)' : 'Carta de Presentación'} adaptado al perfil del candidato y a los requerimientos de la vacante.
@@ -255,10 +312,10 @@ CRITICAL RULES:
     try {
       const systemInstruction = `Eres un analizador de perfiles profesionales. Tu tarea es leer el texto extraído de los documentos del candidato y generar un perfil estructurado y detallado en formato Markdown. Organiza la información en secciones claras: Resumen, Experiencia Laboral, Proyectos, Educación, Habilidades Duras y Blandas. NO inventes información. Si no hay datos sobre algo, omítelo.`;
 
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-3.1-flash-lite',
+      const model = this.getModel({
         systemInstruction,
       });
+
 
       const userPrompt = `
 A continuación se presenta el texto consolidado extraído de los documentos del candidato. Por favor, analízalo y genera el perfil estructurado en formato Markdown.
@@ -303,10 +360,10 @@ Deberás basarte estrictamente en la información provista en la descripción de
 Bajo ninguna circunstancia debes inventar (alucinar) habilidades, certificaciones, puestos de trabajo, clientes, proyectos o años de experiencia que no estén detallados en el CV o la carta.
 Responde en el mismo idioma que el detalle de la etapa y los documentos (normalmente español).`;
 
-    const model = this.genAI.getGenerativeModel({
-      model: 'gemini-3.1-flash-lite',
+    const model = this.getModel({
       systemInstruction,
     });
+
 
     const userPrompt = `
 Genera un paquete de preparación ("Prep Pack") estructurado en formato Markdown para la siguiente etapa de entrevista.
@@ -359,10 +416,10 @@ El documento Markdown que generes DEBE incluir las siguientes secciones obligato
    */
   async startMockInterviewSession(systemInstruction: string) {
     this.logger.log('Iniciando sesión de chat interactiva para simulacro de entrevista...');
-    const model = this.genAI.getGenerativeModel({
-      model: 'gemini-3.1-flash-lite',
+    const model = this.getModel({
       systemInstruction,
     });
+
 
     const chat = model.startChat({
       history: [],
@@ -460,10 +517,10 @@ RESPUESTAS DEL CANDIDATO:
 ${answersText}`;
 
     this.logger.log('Generando perfil conductual con Gemini...');
-    const model = this.genAI.getGenerativeModel({
-      model: 'gemini-3.1-flash-lite',
+    const model = this.getModel({
       systemInstruction,
     });
+
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -504,10 +561,10 @@ Sé honesto y específico. No generes metas genéricas como "crecer profesionalm
     const userPrompt = `RESPUESTAS DEL CANDIDATO SOBRE METAS DE CARRERA:\n${answersText}`;
 
     this.logger.log('Generando metas de carrera con Gemini...');
-    const model = this.genAI.getGenerativeModel({
-      model: 'gemini-3.1-flash-lite',
+    const model = this.getModel({
       systemInstruction,
     });
+
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: userPrompt }] }],

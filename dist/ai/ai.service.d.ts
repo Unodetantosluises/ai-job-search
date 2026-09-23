@@ -5,8 +5,16 @@ export declare class AiService implements OnModuleInit {
     private readonly configService;
     private readonly logger;
     private genAI;
+    private modelName;
     constructor(configService: ConfigService);
     onModuleInit(): void;
+    getModelName(): string;
+    private getModel;
+    validateModelConnection(): Promise<{
+        ok: boolean;
+        message: string;
+        model: string;
+    }>;
     private loadSystemPrompt;
     private loadTemplate;
     evaluateFit(vacancyDescription: string, candidateProfile?: string, language?: string): Promise<{

@@ -10,8 +10,11 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "cli": "ts-node src/main.ts"
+    "cli": "ts-node src/main.ts",
+    "test:privacy": "node tools/check-privacy.js",
+    "test:gemini": "node tools/verify-gemini.js"
   },
+
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@nestjs/common": "^10.4.15",

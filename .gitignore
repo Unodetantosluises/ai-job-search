@@ -89,3 +89,6 @@ local_storage/
 # API Key
 env
 .env
+
+# Personal notes
+notes/*.md
