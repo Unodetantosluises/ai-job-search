@@ -285,3 +285,12 @@ The section order varies by role type:
 4. Professional Experience (reverse chronological)
 5. Publications & Awards
 6. References
+
+**For operational, entry-level, logistics, or retail roles (Modo Downskilling):**
+*Aplica las directivas de `08-cv-downskilling.md` activadas mediante `-ds` o `--downskilling`.*
+
+1. Profile statement (orientado a orden, disciplina, puntualidad y disponibilidad; sin títulos de ingeniería o alta jerarquía)
+2. Professional Experience (priorizando empleos operativos, de paquetería, archivo o atención; des-tecnificando logros reales y omitiendo roles puramente técnicos)
+3. Education (destacando educación media superior/técnica; omitiendo grados universitarios o bootcamps especializados)
+4. Skills & Competencies (estrictamente habilidades blandas y operativas: apego a normas, trabajo en equipo, puntualidad)
+

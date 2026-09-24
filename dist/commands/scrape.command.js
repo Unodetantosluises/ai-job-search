@@ -114,10 +114,15 @@ let ScrapeCommand = ScrapeCommand_1 = class ScrapeCommand extends nest_commander
                     return;
                 }
             }
-            console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+            if (options.downskilling) {
+                console.log('\n\x1b[35m[MODO DOWNSKILLING ACTIVADO] Redactando documentos calibrados para vacante operativa/básica...\x1b[0m');
+            }
+            else {
+                console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+            }
             const [cvRes, coverRes] = await Promise.all([
-                this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cv', 'Español'),
-                this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cover_letter', 'Español'),
+                this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cv', 'Español', options.downskilling),
+                this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cover_letter', 'Español', options.downskilling),
             ]);
             cvLatex = cvRes;
             coverLatex = coverRes;
@@ -167,6 +172,9 @@ let ScrapeCommand = ScrapeCommand_1 = class ScrapeCommand extends nest_commander
     parseUrl(val) {
         return val;
     }
+    parseDownskilling(val) {
+        return val;
+    }
 };
 exports.ScrapeCommand = ScrapeCommand;
 __decorate([
@@ -178,6 +186,16 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ScrapeCommand.prototype, "parseUrl", null);
+__decorate([
+    (0, nest_commander_1.Option)({
+        flags: '-ds, --downskilling',
+        description: 'Activa el modo de Downskilling para vacantes operativas evitando la sobrecalificación',
+        defaultValue: false,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Boolean]),
+    __metadata("design:returntype", void 0)
+], ScrapeCommand.prototype, "parseDownskilling", null);
 exports.ScrapeCommand = ScrapeCommand = ScrapeCommand_1 = __decorate([
     (0, nest_commander_1.Command)({
         name: 'scrape',

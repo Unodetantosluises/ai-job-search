@@ -21,7 +21,7 @@ export declare class AiService implements OnModuleInit {
         score: number;
         analysis: string;
     }>;
-    draftLatex(vacancyDescription: string, candidateProfile: string | undefined, templateType: 'cv' | 'cover_letter', language?: string): Promise<string>;
+    draftLatex(vacancyDescription: string, candidateProfile: string | undefined, templateType: 'cv' | 'cover_letter', language?: string, downskilling?: boolean): Promise<string>;
     buildCandidateProfile(rawText: string): Promise<string>;
     generatePrepPack(vacancy: Vacancy, cvContent: string, coverLetterContent: string, stageDetails: string): Promise<string>;
     startMockInterviewSession(systemInstruction: string): Promise<import("@google/generative-ai").ChatSession>;

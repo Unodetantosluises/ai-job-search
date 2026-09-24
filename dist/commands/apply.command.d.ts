@@ -12,6 +12,7 @@ interface ApplyCommandOptions {
     description?: string;
     language?: string;
     country?: string;
+    downskilling?: boolean;
 }
 export declare class ApplyCommand extends CommandRunner {
     private readonly inquirerService;
@@ -29,6 +30,7 @@ export declare class ApplyCommand extends CommandRunner {
     parseDescription(val: string): string;
     parseLanguage(val: string): string;
     parseCountry(val: string): string;
+    parseDownskilling(val: boolean): boolean;
 }
 export declare class ApplyQuestions {
     parseCompany(val: string): string;

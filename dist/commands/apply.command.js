@@ -115,10 +115,15 @@ let ApplyCommand = ApplyCommand_1 = class ApplyCommand extends nest_commander_1.
                     return;
                 }
             }
-            console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+            if (options.downskilling) {
+                console.log('\n\x1b[35m[MODO DOWNSKILLING ACTIVADO] Redactando documentos calibrados para vacante operativa/básica...\x1b[0m');
+            }
+            else {
+                console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+            }
             const [cvRes, coverRes] = await Promise.all([
-                this.aiService.draftLatex(descriptionText, candidateProfile, 'cv', language),
-                this.aiService.draftLatex(descriptionText, candidateProfile, 'cover_letter', language),
+                this.aiService.draftLatex(descriptionText, candidateProfile, 'cv', language, options.downskilling),
+                this.aiService.draftLatex(descriptionText, candidateProfile, 'cover_letter', language, options.downskilling),
             ]);
             cvLatex = cvRes;
             coverLatex = coverRes;
@@ -193,6 +198,9 @@ let ApplyCommand = ApplyCommand_1 = class ApplyCommand extends nest_commander_1.
     parseCountry(val) {
         return val;
     }
+    parseDownskilling(val) {
+        return val;
+    }
 };
 exports.ApplyCommand = ApplyCommand;
 __decorate([
@@ -242,6 +250,16 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], ApplyCommand.prototype, "parseCountry", null);
+__decorate([
+    (0, nest_commander_1.Option)({
+        flags: '-ds, --downskilling',
+        description: 'Activa el modo de Downskilling para vacantes operativas evitando la sobrecalificación',
+        defaultValue: false,
+    }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Boolean]),
+    __metadata("design:returntype", void 0)
+], ApplyCommand.prototype, "parseDownskilling", null);
 exports.ApplyCommand = ApplyCommand = ApplyCommand_1 = __decorate([
     (0, nest_commander_1.Command)({
         name: 'apply',

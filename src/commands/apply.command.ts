@@ -17,7 +17,9 @@ interface ApplyCommandOptions {
   description?: string;
   language?: string;
   country?: string;
+  downskilling?: boolean;
 }
+
 
 @Command({
   name: 'apply',
@@ -146,12 +148,17 @@ export class ApplyCommand extends CommandRunner {
       }
 
       // 4. REDACCIÓN Y COMPILACIÓN (El Cerebro y El Motor)
-      console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+      if (options.downskilling) {
+        console.log('\n\x1b[35m[MODO DOWNSKILLING ACTIVADO] Redactando documentos calibrados para vacante operativa/básica...\x1b[0m');
+      } else {
+        console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+      }
       
       const [cvRes, coverRes] = await Promise.all([
-        this.aiService.draftLatex(descriptionText, candidateProfile, 'cv', language),
-        this.aiService.draftLatex(descriptionText, candidateProfile, 'cover_letter', language),
+        this.aiService.draftLatex(descriptionText, candidateProfile, 'cv', language, options.downskilling),
+        this.aiService.draftLatex(descriptionText, candidateProfile, 'cover_letter', language, options.downskilling),
       ]);
+
       cvLatex = cvRes;
       coverLatex = coverRes;
 
@@ -279,7 +286,19 @@ export class ApplyCommand extends CommandRunner {
   parseCountry(val: string) {
     return val;
   }
+
+  @Option({
+    flags: '-ds, --downskilling',
+    description: 'Activa el modo de Downskilling para vacantes operativas evitando la sobrecalificación',
+    defaultValue: false,
+  })
+
+  parseDownskilling(val: boolean) {
+    return val;
+  }
 }
+
+
 
 @QuestionSet({ name: 'apply-questions' })
 export class ApplyQuestions {

@@ -17,7 +17,9 @@ import { Evaluation } from '../database/entities/evaluation.entity';
 
 interface ScrapeCommandOptions {
   url?: string;
+  downskilling?: boolean;
 }
+
 
 @Command({
   name: 'scrape',
@@ -145,11 +147,16 @@ export class ScrapeCommand extends CommandRunner {
       }
 
       // Redacción de LaTeX
-      console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+      if (options.downskilling) {
+        console.log('\n\x1b[35m[MODO DOWNSKILLING ACTIVADO] Redactando documentos calibrados para vacante operativa/básica...\x1b[0m');
+      } else {
+        console.log('\n\x1b[33m[2/4] Redactando CV y Carta de Presentación adaptados con Gemini...\x1b[0m');
+      }
       const [cvRes, coverRes] = await Promise.all([
-        this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cv', 'Español'),
-        this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cover_letter', 'Español'),
+        this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cv', 'Español', options.downskilling),
+        this.aiService.draftLatex(savedVacancy.description, candidateProfile, 'cover_letter', 'Español', options.downskilling),
       ]);
+
       cvLatex = cvRes;
       coverLatex = coverRes;
 
@@ -222,7 +229,18 @@ export class ScrapeCommand extends CommandRunner {
   parseUrl(val: string) {
     return val;
   }
+
+  @Option({
+    flags: '-ds, --downskilling',
+    description: 'Activa el modo de Downskilling para vacantes operativas evitando la sobrecalificación',
+    defaultValue: false,
+  })
+
+  parseDownskilling(val: boolean) {
+    return val;
+  }
 }
+
 
 @QuestionSet({ name: 'scrape-confirm-questions' })
 export class ScrapeConfirmQuestions {

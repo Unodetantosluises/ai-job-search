@@ -199,6 +199,7 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
     candidateProfile: string | undefined,
     templateType: 'cv' | 'cover_letter',
     language: string = 'Español',
+    downskilling: boolean = false,
   ): Promise<string> {
     if (!this.genAI) {
       throw new Error('El cliente de Gemini no está inicializado. Verifica tu GEMINI_API_KEY.');
@@ -207,6 +208,22 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
     try {
       const systemContext = await this.loadSystemPrompt('apply.md');
       const baseTemplate = await this.loadTemplate(templateType);
+
+      let downskillingDirectives = '';
+      if (downskilling) {
+        try {
+          const downskillingPath = path.join(
+            process.cwd(),
+            'docs_prompts',
+            'skills',
+            'job-application-assistant',
+            '08-cv-downskilling.md',
+          );
+          downskillingDirectives = await fs.readFile(downskillingPath, 'utf-8');
+        } catch (err) {
+          this.logger.warn(`No se pudo cargar 08-cv-downskilling.md: ${err.message}`);
+        }
+      }
 
       // Leer obligatoriamente el perfil desde el archivo unificado
       const profilePath = path.join(
@@ -229,10 +246,28 @@ Escribe tu respuesta estrictamente en el formato JSON requerido.
         systemInstruction: systemContext || undefined,
       });
 
-
       const userPrompt = `
 Genera el código LaTeX puro para un ${templateType === 'cv' ? 'Currículum Vitae (CV)' : 'Carta de Presentación'} adaptado al perfil del candidato y a los requerimientos de la vacante.
 Debes basarte estrictamente en la estructura, paquetes de LaTeX, fuentes, comandos personalizados y diseño de la plantilla proporcionada abajo. Solo rellena o modifica el contenido de texto para alinearlo a la postulación sin alterar los estilos base o provocar errores de compilación.
+
+${downskilling ? `
+=======================================================================
+MODO DOWNSKILLING ACTIVADO (ESTRICTO - MITIGACIÓN DE SOBRECALIFICACIÓN)
+=======================================================================
+Estás aplicando a un puesto operativo, logístico o de entrada. Debes aplicar ESTRICTAMENTE las directivas de Downskilling:
+1. NEUTRALIZACIÓN DE TÍTULOS: No utilices títulos de alta especialidad ni jerarquía (como "Ingeniero de Software", "Full Stack Developer", "Abogado", etc.). Usa un título funcional general acorde a la vacante (ej. "Auxiliar General", "Auxiliar Operativo", "Auxiliar Administrativo").
+2. CERO FALSIFICACIÓN: No inventes ninguna empresa ni empleo ficticio. Basa el documento exclusivamente en la historia real del candidato.
+3. DES-TECNIFICACIÓN Y PODA:
+   - Omite roles puramente técnicos o hiper-especializados que generen alarma de sobrecalificación y no aporten valor operativo.
+   - Conserva los empleos administrativos, de servicio, clasificación o paquetería al frente.
+   - Si se conserva un empleo formal reciente para no dejar lagunas temporales, redáctalo en máximo 2 líneas despojándolo de toda jerga técnica/software/legal y conservando solo métricas de productividad operativa (ej. porcentajes de desahogo de rezago, volumen).
+4. CALIBRACIÓN EDUCATIVA: Resalta únicamente la educación media superior o técnica. Omite grados universitarios o certificaciones avanzadas si la vacante no los exige.
+5. HABILIDADES: Elimina lenguajes de programación, librerías y herramientas complejas. Enfócate 100% en puntualidad, asistencia, trabajo en equipo, orden, disciplina y disponibilidad de horario.
+
+DIRECTIVAS COMPLETAS DE REFERENCIA:
+${downskillingDirectives}
+=======================================================================
+` : ''}
 
 DESCRIPCIÓN DE LA VACANTE:
 ${vacancyDescription}
@@ -253,7 +288,8 @@ CRITICAL RULES:
 2. DO NOT HALLUCINATE OR INVENT EXPERIENCE, DEGREES, OR LOCATIONS. Base the CV and Cover Letter ONLY on the provided candidate profile. If the candidate lacks specific years of experience, highlight their real projects and skills instead of fabricating work history.
 `;
 
-      this.logger.log(`Generando borrador de LaTeX para ${templateType} con Gemini (Modelo con plantilla inyectada)...`);
+      this.logger.log(`Generando borrador de LaTeX para ${templateType} con Gemini (Modelo con plantilla inyectada${downskilling ? ' | Modo Downskilling' : ''})...`);
+
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
       });

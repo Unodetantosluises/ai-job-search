@@ -10,6 +10,7 @@ import { Application } from '../database/entities/application.entity';
 import { Evaluation } from '../database/entities/evaluation.entity';
 interface ScrapeCommandOptions {
     url?: string;
+    downskilling?: boolean;
 }
 export declare class ScrapeCommand extends CommandRunner {
     private readonly scraperService;
@@ -24,6 +25,7 @@ export declare class ScrapeCommand extends CommandRunner {
     constructor(scraperService: ScraperService, inquirerService: InquirerService, aiService: AiService, latexService: LatexService, storageService: StorageService, vacancyRepository: Repository<Vacancy>, applicationRepository: Repository<Application>, evaluationRepository: Repository<Evaluation>);
     run(inputs: string[], options: ScrapeCommandOptions): Promise<void>;
     parseUrl(val: string): string;
+    parseDownskilling(val: boolean): boolean;
 }
 export declare class ScrapeConfirmQuestions {
     parseEvaluate(val: boolean): boolean;

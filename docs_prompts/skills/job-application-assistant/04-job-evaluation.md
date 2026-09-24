@@ -170,7 +170,18 @@ Present the evaluation as:
 - **Weak Fit** (30-44): Probably skip unless strategic reasons
 - **Poor Fit** (<30): Skip
 
+## Overqualification & Downskilling Trigger (Modo Adaptación Operativa)
+
+When evaluating roles in **logistics, warehousing, retail, manual operations, customer support, or entry-level clerical work** where the formal requirements are basic (e.g., "mayor de 18 años", "secundaria o preparatoria concluida", "disponibilidad de horario"):
+
+1. **Invert the Technical Match:** Advanced engineering, legal, or financial competencies must NOT be scored as a positive match — they represent an immediate **Overqualification Risk** (*Flight risk* or compensation mismatch for HR recruiters).
+2. **Flag Overqualification Risk:** If the candidate's core profile is heavily specialized and the vacancy is entry-level/operational, the evaluator must output:
+   `⚠️ HIGH OVERQUALIFICATION RISK: Role requires Downskilling protocol.`
+3. **Trigger Downskilling Mode:** Instruct the candidate to apply using the flag `--downskilling` (or `-ds`), activating the rules documented in `08-cv-downskilling.md` to prune specialized titles, de-jargonize real achievements, and emphasize operational reliability, discipline, and schedule flexibility.
+
+
 ## Pre-Application: Call the Employer (Best Practice)
+
 
 Before writing the application, consider whether the candidate should call the contact person listed in the posting. **Only call if there are substantive questions** - never call just to "be remembered."
 

@@ -54,12 +54,22 @@ function main() {
 
   // Comprobar que ningún archivo prohibido esté en el índice de Git
   for (const forbidden of FORBIDDEN_TRACKED_PATTERNS) {
-    const matches = trackedFiles.filter(file => file === forbidden || file.startsWith(forbidden));
+    const matches = trackedFiles.filter(file => {
+      // Permitir explícitamente plantillas/ejemplos públicos documentados
+      if (file.endsWith('.example') || file.includes('.example.') || file.endsWith('.sample')) {
+        return false;
+      }
+      if (forbidden.endsWith('/')) {
+        return file.startsWith(forbidden);
+      }
+      return file === forbidden || file.startsWith(forbidden + '.') || file.startsWith(forbidden + '/');
+    });
     if (matches.length > 0) {
       console.error(`❌ ERROR DE PRIVACIDAD: El archivo prohibido está rastreado por Git: ${matches.join(', ')}`);
       errors++;
     }
   }
+
 
   // 2. Verificar que .gitignore contiene las reglas críticas
   const gitignorePath = path.join(ROOT_DIR, '.gitignore');
